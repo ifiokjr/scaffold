@@ -1,0 +1,79 @@
+export const snapshot = {};
+
+snapshot[`parseGitUrl > should parse url: ifiokjr/scaffold#main 1`] = `
+{
+  mode: "tar",
+  name: "scaffold",
+  ref: "main",
+  site: "github",
+  ssh: "git@github.com:ifiokjr/scaffold",
+  subdirectory: undefined,
+  url: "https://github.com/ifiokjr/scaffold",
+  user: "ifiokjr",
+}
+`;
+
+snapshot[`parseGitUrl > should parse url: test_org/scaffold/subdir#v2.0.0 1`] = `
+{
+  mode: "tar",
+  name: "scaffold",
+  ref: "v2.0.0",
+  site: "github",
+  ssh: "git@github.com:test_org/scaffold",
+  subdirectory: "/subdir",
+  url: "https://github.com/test_org/scaffold",
+  user: "test_org",
+}
+`;
+
+snapshot[`parseGitUrl > should parse url: test_org/test_repo 1`] = `
+{
+  mode: "tar",
+  name: "test_repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:test_org/test_repo",
+  subdirectory: undefined,
+  url: "https://github.com/test_org/test_repo",
+  user: "test_org",
+}
+`;
+
+snapshot[`parseGitUrl > should parse url: github:test_org/test_repo 1`] = `
+{
+  mode: "tar",
+  name: "test_repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:test_org/test_repo",
+  subdirectory: undefined,
+  url: "https://github.com/test_org/test_repo",
+  user: "test_org",
+}
+`;
+
+snapshot[`parseGitUrl > should parse url: git@github.com:test_org/test_repo 1`] = `
+{
+  mode: "tar",
+  name: "test_repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:test_org/test_repo",
+  subdirectory: undefined,
+  url: "https://github.com/test_org/test_repo",
+  user: "test_org",
+}
+`;
+
+snapshot[`parseGitUrl > should parse url: https://github.com/test_org/test_repo.git 1`] = `
+{
+  mode: "tar",
+  name: "test_repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:test_org/test_repo",
+  subdirectory: undefined,
+  url: "https://github.com/test_org/test_repo",
+  user: "test_org",
+}
+`;

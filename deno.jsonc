@@ -1,0 +1,22 @@
+{
+  "tasks": {
+    "fix": "dprint fmt",
+    "test": "deno test -A",
+    "test:watch": "deno test -A --watch"
+  },
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true
+  },
+  "lint": {
+    "files": {
+      "include": ["./"],
+      "exclude": [
+        "**/node_modules",
+        "**/*-lock.json",
+        "**/__fixtures__",
+        "**/__snapshots__"
+      ]
+    },
+    "rules": { "tags": ["recommended"], "include": [] }
+  }
+}
