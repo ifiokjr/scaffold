@@ -1,4 +1,5 @@
 import {} from "./utils/get_temp_directory.ts";
+import { ensureDir } from "./deps/fs.ts";
 import { path } from "./deps/path.ts";
 import { Logger } from "./deps/std.ts";
 import { CacheError } from "./errors.ts";
@@ -56,6 +57,9 @@ export interface RepositoryCacheProps {
  * Get the repository from the cache
  */
 export class RepositoryCache extends Cache {
+  p(p: any) {
+    throw new Error("Method not implemented.");
+  }
   #directory: string;
   #log: Logger;
 
@@ -75,7 +79,7 @@ export class RepositoryCache extends Cache {
     }
 
     this.#log = props.log ??
-      createLogger({ name: "cache", levelName: "CRITICAL" });
+      createLogger({ name: "scaffold:cache", levelName: "CRITICAL" });
     this.#directory = directory;
   }
 
@@ -85,6 +89,7 @@ export class RepositoryCache extends Cache {
    */
   async load() {
     this.#log.debug("loading cache", { directory: this.#directory });
+    await ensureDir(this.#directory);
 
     for await (const entry of Deno.readDir(this.#directory)) {
       if (!entry.isDirectory) {
@@ -100,7 +105,7 @@ export class RepositoryCache extends Cache {
   /**
    * Get the directory for the hashed repository.
    */
-  directory(key: string) {
+  directory(key = "") {
     return getPath(path.join(this.#directory, key));
   }
 

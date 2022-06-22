@@ -11,13 +11,13 @@ export class ScaffoldError extends AggregateError {
 
 export class LoadRepositoryError extends ScaffoldError {
   constructor(message: string, errors?: unknown[]) {
-    super(`LOAD_REPOSITORY_ERROR: ${message}`, errors);
+    super(message, errors);
   }
 }
 
 export class CacheError extends ScaffoldError {
   constructor(message: string, errors?: unknown[]) {
-    super(`CACHE_ERROR: ${message}`, errors);
+    super(message, errors);
   }
 }
 
@@ -44,7 +44,7 @@ export class GlobError extends ScaffoldError {
   root: string;
 
   constructor(root: string, message: string, errors?: unknown[]) {
-    super(`GLOB_ERROR: ${message}`, errors);
+    super(message, errors);
     this.root = root;
   }
 }

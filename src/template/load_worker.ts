@@ -31,7 +31,7 @@ export async function loadWorker(
   const permissions: ScaffoldPermissions = merge({
     env: [],
     ffi: [],
-    read: [source, destination],
+    read: [source, destination, Deno.cwd()],
     write: [destination],
     run: [],
   }, props.permissions ?? {});

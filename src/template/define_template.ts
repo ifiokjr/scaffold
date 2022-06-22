@@ -89,7 +89,10 @@ export interface TemplateProps<
    * Permissions that are approved will be cached so that the template can be
    * without requesting new permissions every time.
    */
-  getPermissions?: Callable<ScaffoldPermissions, MatchProps<Variables>>;
+  getPermissions?: Callable<
+    Partial<ScaffoldPermissions>,
+    MatchProps<Variables>
+  >;
 
   /**
    * These file will be included.
@@ -109,7 +112,7 @@ export interface TemplateProps<
    *
    * This can be used to run an npm install and initialize git.
    */
-  getInstallCommand?: Callable<() => Promise<void>, MatchProps<Variables>>;
+  getInstallCommand?: Callable<() => MaybePromise<void>, MatchProps<Variables>>;
 }
 
 export interface BaseTemplateProps {

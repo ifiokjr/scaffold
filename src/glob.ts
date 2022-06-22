@@ -1,6 +1,11 @@
 import { path } from "./deps/path.ts";
 import { GlobError } from "./errors.ts";
-import { getPath, normalize, normalizeDirectory } from "./utils.ts";
+import {
+  getPath,
+  normalize,
+  normalizeDirectory,
+  removeUndefined,
+} from "./utils.ts";
 import {
   createMatcher,
   CreateMatcherOptions,
@@ -68,7 +73,7 @@ export interface GlobProps extends CreateMatcherOptions, BaseGlobProps {
  * ```
  */
 export async function* glob(options: GlobProps) {
-  const props = { ...DEFAULT_OPTIONS, ...options };
+  const props = { ...DEFAULT_OPTIONS, ...removeUndefined(options) };
   const cwd = getPath(props.cwd);
   const includer = createMatcher(props.include, props);
   const excluder = createMatcher(props.exclude, props);

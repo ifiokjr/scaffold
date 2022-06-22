@@ -52,19 +52,21 @@ export async function loadRepository(
   }
 
   const hash = await getHash(repo);
-  log.info("hash retrieved", { hash });
+  log.info("hash retrieved", hash);
 
   if (!hash) {
-    log.warning("no hash found!");
+    log.warning("No hash found!");
     // TODO(ifiokjr): `did you mean to use...`
     throw new LoadRepositoryError(
       `the requested reference ${repo.ref} does not exist on the requested repository: ${repo.url}`,
     );
   }
 
-  const hasCache = cache.has(hash);
   const key = cache.getKey(hash, repo);
+  const hasCache = cache.has(key);
   const destination = cache.directory(key);
+
+  log.debug("all the details", { key, hasCache, destination, repo });
 
   if (!hasCache) {
     log.info("download the directory to the temporary cache");
@@ -153,10 +155,10 @@ async function getTar(props: GetTarProps): Promise<void> {
   for await (const entry of tarballEntries) {
     log.debug("processing the tarball entry", entry);
     const relative = path.relative(subdirectory, entry.fileName);
-    log.info("relative path:", { relative });
+    log.debug("relative path:", { relative });
 
     if (relative.startsWith("..")) {
-      log.info("ignoring entry outside of subdirectory");
+      log.debug("ignoring entry outside of subdirectory");
       continue;
     }
 

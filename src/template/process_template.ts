@@ -166,7 +166,6 @@ export class ProcessTemplate {
         variables: this.variables,
       })
       : undefined;
-
     const sourceIterator = glob({ cwd: source, exclude, include, dot: true });
     const template = createTemplateFactory(this.variables);
 

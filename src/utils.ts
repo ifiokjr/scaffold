@@ -1,3 +1,4 @@
+import { colors, Spinner, type SpinnerOptions } from "./deps/cli.ts";
 import { normalizePath, path } from "./deps/path.ts";
 
 /**
@@ -5,12 +6,16 @@ import { normalizePath, path } from "./deps/path.ts";
  * RealtimeDB allow `undefined` as a value.
  *
  * @param data The object to clean
+ * @param nullish Set to true to clean null and undefined values
  */
-export function removeUndefined<Shape extends object>(data: Shape) {
+export function removeUndefined<Shape extends object>(
+  data: Shape,
+  nullish = false,
+) {
   const transformed = Object.create({});
 
   for (const [key, value] of Object.entries(data)) {
-    if (value === undefined) {
+    if (nullish ? value == null : value === undefined) {
       continue;
     }
 
@@ -87,4 +92,57 @@ export async function writeJson(path: string, json: object) {
   } catch {
     return {};
   }
+}
+
+export function wait(options: SpinnerOptions) {
+  let spinner: Spinner;
+  const getSpinner = () => {
+    return spinner ??= new Spinner({
+      text: options.text,
+      prefix: options.prefix ?? "",
+      color: options.color ?? colors.cyan,
+      spinner: options.spinner ?? "dots",
+      hideCursor: options.hideCursor ?? true,
+      indent: options.indent ?? 0,
+      interval: options.interval ?? 100,
+      stream: options.stream ?? Deno.stdout,
+      enabled: true,
+      discardStdin: true,
+    }).start();
+  };
+
+  const proxy = {
+    text: (text: string) => {
+      if (options.enabled === false) return;
+      getSpinner().text = text;
+      return proxy;
+    },
+    info: (text: string) => {
+      if (options.enabled === false) return;
+      getSpinner().info(text);
+      return proxy;
+    },
+    fail: (text: string) => {
+      if (options.enabled === false) return;
+      getSpinner().fail(text);
+      return proxy;
+    },
+    succeed: (text: string) => {
+      if (options.enabled === false) return;
+      getSpinner().succeed(text);
+      return proxy;
+    },
+    warn: (text: string) => {
+      if (options.enabled === false) return;
+      getSpinner().warn(text);
+      return proxy;
+    },
+    stop: () => {
+      if (options.enabled === false) return;
+      getSpinner().stop();
+      return proxy;
+    },
+  };
+
+  return proxy;
 }

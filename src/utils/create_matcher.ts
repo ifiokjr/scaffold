@@ -60,7 +60,7 @@ export function createMatcher(
   options: CreateMatcherOptions = {},
 ): MatchFunction {
   const { disableNegation = false, expandGlobs = false } = options;
-  const matchers = Array.isArray(pattern) ? pattern : [pattern];
+  const matchers = Array.isArray(pattern) ? pattern : [pattern].filter(Boolean);
 
   return (source) => {
     if (

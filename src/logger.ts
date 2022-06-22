@@ -154,7 +154,7 @@ export function createLogger(
   const {
     name,
     levelName = "CRITICAL",
-    formatter = `{symbol} {badge} ${colors.gray("scaffold")} {msg} {args}`,
+    formatter = `{symbol} {badge} ${colors.gray(name)} {msg} {args}`,
   } = props;
 
   return new BetterLogger(name, levelName, {

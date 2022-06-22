@@ -1,7 +1,6 @@
 import { RepositoryCache } from "./src/cache.ts";
 import { VERSION } from "./src/constants.ts";
 import { colors, Command, EnumType } from "./src/deps/cli.ts";
-import { wait } from "./src/deps/cli.ts";
 import { isString } from "./src/deps/npm.ts";
 import { path } from "./src/deps/path.ts";
 import { LevelName } from "./src/deps/std.ts";
@@ -10,7 +9,7 @@ import { loadRepository } from "./src/load_repository.ts";
 import { createLogger } from "./src/logger.ts";
 import { ScaffoldPermissions } from "./src/template/define_template.ts";
 import { loadWorker } from "./src/template/load_worker.ts";
-import { readJson } from "./src/utils.ts";
+import { readJson, wait, writeJson } from "./src/utils.ts";
 
 if (!import.meta.main) {
   throw new ScaffoldError("The cli should not be imported as a module");
@@ -50,7 +49,7 @@ const command = new Command()
   )
   .option("--no-cache", "Disable the cache.")
   .option(
-    "-l, --log-level=[level:logLevel]",
+    "-l, --log-level [level:logLevel]",
     "Set the log level.",
   )
   .option("-s, --silent", "Disable all logging.")
@@ -64,10 +63,22 @@ const command = new Command()
     "--no-template",
     `Disable loading the ${colors.gray.italic("template.config.ts")} file.`,
   )
+  .option(
+    "-n,--name [name:string]",
+    `Set the name to be used in the template`,
+  )
+  .option(
+    "--description [name:string]",
+    `Set the description to be used in the template`,
+  )
+  .option(
+    "-y, --no-interactive",
+    `Disable the interactive prompt.`,
+  )
   .action(async (options, templateFolder, folder = "") => {
-    const { logLevel = "fatal", debug = false, silent = false } = options;
+    const { logLevel = "error", debug = false, silent = false } = options;
     const levelName: LevelName = silent
-      ? "NOTSET"
+      ? "CRITICAL"
       : debug
       ? "DEBUG"
       : isString(logLevel)
@@ -75,39 +86,44 @@ const command = new Command()
       : "DEBUG";
     const log = createLogger({ name: "scaffold", levelName });
     const destination = path.resolve(folder);
-    const spinner = wait({ enabled: levelName !== "NOTSET", text: "" })
-      .start();
+    const spinner = wait({
+      enabled: !silent || levelName !== "CRITICAL",
+      text: `scaffolding the project ${colors.gray.italic(templateFolder)}`,
+    });
     const shouldCache = options.cache !== false;
     const cacheDirectory = isString(options.cache)
       ? path.resolve(options.cache)
       : undefined;
     const cache = new RepositoryCache({ directory: cacheDirectory, log });
+    let exit = 0;
 
     try {
       if (shouldCache) {
-        spinner.text = "loading cache...";
+        log.info("loading cache...", cache.directory());
         await cache.load();
-        spinner.succeed("cache loaded");
+        log.info("cache successfully loaded");
       }
 
       let source: string;
       let permissions: Partial<ScaffoldPermissions> = {};
+      let key: string | undefined;
 
       if (["./", "../", "/"].some((p) => templateFolder.startsWith(p))) {
         source = path.resolve(templateFolder);
       } else {
-        spinner.text = "loading repository...";
-        const result = await loadRepository(templateFolder, { log });
+        spinner.text("loading repository...");
+        const result = await loadRepository(templateFolder, { log, cache });
         source = result.directory;
+        key = result.key;
         spinner.succeed(
           `repository loaded from: ${colors.gray.italic(result.repo.url)}`,
         );
-        spinner.text = "checking for saved permissions...";
+        spinner.text("checking for saved permissions...");
         permissions = await readJson(cache.permissions(result.key));
         spinner.succeed("cached permissions loaded");
       }
 
-      spinner.text = "preparing scaffold...";
+      spinner.text("preparing scaffold...");
       const processor = await loadWorker({
         source,
         destination,
@@ -116,32 +132,29 @@ const command = new Command()
         variables: {},
         permissions,
       });
-      spinner.succeed("worker loaded");
 
       // check if this should be called.
       await processor.getVariables();
       permissions = await processor.getPermissions() ?? permissions;
-
-      spinner.text = "processing template...";
+      log.info("permissions", permissions);
       await processor.processTemplate();
-      spinner.succeed("done");
-
-      spinner.text = "completing installation";
       await processor.install();
-      spinner.succeed("installed!");
-    } catch (error) {
-      spinner.fail("something went wrong 😢");
 
+      if (shouldCache && key) {
+        await writeJson(cache.permissions(key), permissions);
+      }
+
+      spinner.succeed("scaffolding completed!");
+    } catch (error) {
       if (ScaffoldError.is(error)) {
-        log.critical(error.message);
-      } else {
-        log.critical(error);
+        spinner.fail(`Something went wrong ${error.message}`);
       }
 
       // Provide the full error stack trace.
-      log.debug(error);
-
-      Deno.exit(1);
+      log.warning("The full error stack", error);
+      exit = 1;
+    } finally {
+      Deno.exit(exit);
     }
   });
 
