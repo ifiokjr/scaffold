@@ -10,17 +10,17 @@ on:
       - main
 
 env:
-  DENO_DIR: ~/.deno_cache_ci
+  DENO_DIR: $HOME/.deno_cache
 
 jobs:
   test:
-    name: 🏃‍♀️ Run all checks
-    runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         deno: ['v1.x', 'canary']
         os: [macos-latest, windows-latest, ubuntu-latest]
+
+    timeout-minutes: 5
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: 🏴‍☠️ Checkout code repository

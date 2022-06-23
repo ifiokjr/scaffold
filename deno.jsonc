@@ -1,8 +1,8 @@
 {
   "tasks": {
     "scaffold": "deno run --unstable --allow-env --allow-net --allow-read --allow-write --allow-run ./cli.ts",
-    "lock": "deno run --allow-run=deno --allow-env=CI --allow-read=./ scripts/cache.ts --reload",
-    "lock:update": "deno run --allow-run=deno --allow-read=./ scripts/cache.ts",
+    "lock": "deno run --allow-run=deno --allow-env=CI --allow-read scripts/cache.ts --reload",
+    "lock:update": "deno run --allow-run=deno --allow-read scripts/cache.ts",
     "lint": "deno lint",
     "fix": "dprint fmt",
     "test": "deno test --unstable --allow-read --allow-write --allow-env --allow-run='deno'",
