@@ -86,7 +86,7 @@ const command = new Command()
     const destination = path.resolve(folder);
     const spinner = wait({
       enabled: !silent || levelName !== "CRITICAL",
-      text: `scaffolding the project ${colors.gray.italic(templateFolder)}`,
+      text: `Scaffolding the project ${colors.gray.italic(templateFolder)}`,
     });
     const shouldCache = options.cache !== false;
     const cacheDirectory = isString(options.cache)
@@ -97,9 +97,9 @@ const command = new Command()
 
     try {
       if (shouldCache) {
-        log.info("loading cache...", cache.directory());
+        log.info("Loading cache...", cache.directory());
         await cache.load();
-        log.info("cache successfully loaded");
+        log.info("Cache successfully loaded");
       }
 
       let source: string;
@@ -114,14 +114,14 @@ const command = new Command()
         source = result.directory;
         key = result.key;
         spinner.succeed(
-          `repository loaded from: ${colors.gray.italic(result.repo.url)}`,
+          `Repository loaded from: ${colors.gray.italic(result.repo.url)}`,
         );
-        spinner.text("checking for saved permissions...");
+        spinner.text("Checking for saved permissions...");
         permissions = await readJson(cache.permissions(result.key));
-        spinner.succeed("cached permissions loaded");
+        spinner.succeed("Cached permissions loaded");
       }
 
-      spinner.text("preparing scaffold...");
+      spinner.text("Preparing scaffold...");
       const processor = await loadWorker({
         source,
         destination,
@@ -134,7 +134,6 @@ const command = new Command()
       // check if this should be called.
       await processor.getVariables();
       permissions = await processor.getPermissions() ?? permissions;
-      log.info("permissions", permissions);
       await processor.processTemplate();
       await processor.install();
 
@@ -142,7 +141,7 @@ const command = new Command()
         await writeJson(cache.permissions(key), permissions);
       }
 
-      spinner.succeed("scaffolding completed!");
+      spinner.succeed("Scaffolding completed!");
     } catch (error) {
       if (ScaffoldError.is(error)) {
         spinner.fail(`Something went wrong ${error.message}`);

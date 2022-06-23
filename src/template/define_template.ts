@@ -111,6 +111,24 @@ export interface TemplateProps<
   getExcluded?: Callable<Match | Match[], MatchProps<Variables>>;
 
   /**
+   * A map of relative file names to their renamed counterparts.
+   *
+   * ```ts
+   * import { defineTemplate } from 'https://deno.land/x/scaffold/mod.ts';
+   *
+   * export defineTemplate({
+   *   getRenamed: {
+   *     "src/index.ts": "src/main.ts", // Rename index.ts to main.ts
+   *   }
+   * })
+   * ```
+   */
+  getRenamed?: Callable<
+    Record<string, string> | undefined,
+    MatchProps<Variables>
+  >;
+
+  /**
    * Get an installation command which is run after the template is copied over.
    *
    * This can be used to run an npm install and initialize git.

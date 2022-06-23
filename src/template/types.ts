@@ -48,10 +48,7 @@ export type ExportedConfig<Config extends object, Argument = unknown> =
  * supports being called.
  */
 
-export interface LoadConfigOptions<
-  Config extends object = object,
-  Argument = unknown,
-> {
+export interface LoadConfigOptions {
   /**
    * The name of the configuration object to search for.
    *

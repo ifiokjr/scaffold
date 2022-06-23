@@ -14,9 +14,15 @@ env:
   DENO_DIR: .deno_cache
 
 jobs:
-  lint:
+  test:
     name: run all checks
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        deno: ['v1.x', 'canary']
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
     steps:
       - name: cancel previous runs
         uses: styfle/cancel-workflow-action@0.9.1
@@ -33,18 +39,30 @@ jobs:
       - name: setup deno
         uses: denoland/setup-deno@v1.0.0
         with:
-          deno-version: v1.x # Run with latest stable Deno.
+          deno-version: ${{ matrix.deno }}
 
-      - name: pin cache from lockfile
+      - name: lock cache
         run: deno task lock
         shell: 'bash'
 
       - name: check formatting
+        if: startsWith(matrix.os, 'ubuntu') && matrix.deno == 'canary'
         uses: dprint/check@v2.0
 
       - name: lint deno files
-        uses: deno task lint:ci
+        if: startsWith(matrix.os, 'ubuntu') && matrix.deno == 'canary'
+        uses: deno lint
 
-      - name: typecheck
-        run: deno --unstable check *.ts
+      - name: typecheck cli
+        run: deno --unstable check ./cli.ts
         shell: 'bash'
+
+      - name: typecheck entry
+        run: deno --unstable check ./mod.ts
+        shell: 'bash'
+
+      - name: unit test
+        run: deno task test
+
+      - name: scaffold
+        run: deno task scaffold --help

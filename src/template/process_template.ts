@@ -10,10 +10,17 @@ import {
   Toggle,
 } from "../deps/cli.ts";
 import { copy, ensureDir } from "../deps/fs.ts";
-import { isFunction, objectKeys, render } from "../deps/npm.ts";
+import {
+  isArray,
+  isFunction,
+  objectEntries,
+  objectKeys,
+  render,
+} from "../deps/npm.ts";
 import { path } from "../deps/path.ts";
 import { assert } from "../deps/std.ts";
 import { glob } from "../glob.ts";
+import { normalize } from "../utils.ts";
 import {
   AnyVariables,
   BaseTemplateProps,
@@ -34,6 +41,7 @@ export class ProcessTemplate {
   #loaded = false;
   #base: BaseTemplateProps;
   #template?: TemplateProps;
+  #templatePath?: string;
   #variables?: AnyVariables;
 
   get template() {
@@ -72,6 +80,7 @@ export class ProcessTemplate {
       return;
     }
 
+    this.#templatePath = result.path;
     this.#template = template;
   }
 
@@ -153,32 +162,37 @@ export class ProcessTemplate {
    */
   async processTemplate(): Promise<void> {
     const { source, destination } = this.#base;
-    const { getIncluded, getExcluded } = this.template ?? {};
-    const exclude = getExcluded
-      ? await extractCallable(getExcluded, {
-        ...this.#base,
-        variables: this.variables,
-      })
-      : undefined;
+    const { getIncluded, getExcluded, getRenamed } = this.template ?? {};
+    const variables = this.variables;
+
+    let exclude = getExcluded
+      ? await extractCallable(getExcluded, { ...this.#base, variables }) ?? []
+      : [];
     const include = getIncluded
-      ? await extractCallable(getIncluded, {
-        ...this.#base,
-        variables: this.variables,
-      })
-      : undefined;
+      ? await extractCallable(getIncluded, { ...this.#base, variables })
+      : ["**"];
+    const renamed = normalizeObjectPaths(
+      getRenamed
+        ? await extractCallable(getRenamed, { ...this.#base, variables }) ?? {}
+        : {},
+    );
+
+    if (this.#templatePath) {
+      const configPath = normalize(path.relative(source, this.#templatePath));
+      exclude = isArray(exclude)
+        ? [...exclude, configPath]
+        : [exclude, configPath];
+    }
+
     const sourceIterator = glob({ cwd: source, exclude, include, dot: true });
-    const template = createTemplateFactory(this.variables);
+    const template = createTemplateFactory(variables);
 
     await ensureDir(destination);
 
     for await (const file of sourceIterator) {
-      const { absolute, relative, name } = file;
-
-      // the target file / directory
-      const target = path.join(
-        destination,
-        template(relative.replace(/\.template$/, "")),
-      );
+      const relative = renamed[file.relative] || file.relative;
+      const templated = template(relative.replace(/\.template$/, ""));
+      const target = path.join(destination, templated);
 
       if (file.isDirectory) {
         await ensureDir(target);
@@ -186,20 +200,20 @@ export class ProcessTemplate {
       }
 
       // process the `.template` files.
-      if (name.endsWith(".template")) {
-        const content = template(await Deno.readTextFile(absolute));
+      if (file.name.endsWith(".template")) {
+        await ensureDir(path.dirname(target)); // ensure the directory exists.
+        const content = template(await Deno.readTextFile(file.absolute));
 
         // move the templated data to the new file.
         await Deno.writeTextFile(target, content);
       } else {
-        await copy(absolute, target);
+        await copy(file.absolute, target);
       }
     }
   }
 
   async install(): Promise<void> {
     const getInstallCommand = this.template?.getInstallCommand;
-
     if (!getInstallCommand) {
       return;
     }
@@ -214,7 +228,7 @@ export class ProcessTemplate {
 }
 function createTemplateFactory(variables: AnyVariables) {
   return (content: string): string => {
-    return render(content, variables) as string;
+    return render(content, { ...variables }, { async: false }) as string;
   };
 }
 
@@ -243,4 +257,19 @@ function extractCallable<Type, Props>(
   props: Props,
 ) {
   return isFunction(callable) ? callable(props) : callable;
+}
+
+/**
+ * Normalizes the paths in the `rename` object.
+ */
+function normalizeObjectPaths<Paths extends Record<string, unknown>>(
+  paths: Paths,
+): Paths {
+  const normalized = Object.create(null);
+
+  for (const [key, value] of objectEntries(paths)) {
+    normalized[normalize(key)] = value;
+  }
+
+  return normalized;
 }

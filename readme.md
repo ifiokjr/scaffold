@@ -35,3 +35,13 @@ A copy of the remote or local template is made to a temporary directory.
 Here the template can include a `scaffold.template.ts` file which is use to perform extra actions.
 
 <!--TEMPLATE: a.b-->This is a template<!--/TEMPLATE: a.b-->
+
+## Templates
+
+`eta` is the template engine used in `scaffold`. Any file that is ends with the `.template` extension will be processed by `eta`.
+
+Variables can be referenced in the template using the `<%= it.name %>` syntax. `it` is the variable that stores all the data captures in the `scaffold.config.ts` file.
+
+File names can also use the template syntax. For example, `<%= it.name %>.txt` in a project with the name `my-project` will rename the file to `my-project.txt`.
+
+`eta` has a whole host of features which you can learn about [here](https://eta.js.org/docs/syntax#syntax-overview).
