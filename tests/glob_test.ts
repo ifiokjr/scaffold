@@ -1,7 +1,20 @@
 import { glob } from "../mod.ts";
+import { path } from "../src/deps/path.ts";
 import { assertSnapshot, describe, it } from "./deps.ts";
 
-const cwd = new URL("__fixtures__/glob/", import.meta.url).pathname;
+const cwd = path.fromFileUrl(new URL("__fixtures__/glob/", import.meta.url));
+function snapshot(t: Deno.TestContext, array: string[]) {
+  return assertSnapshot(t, array, {
+    serializer: (actual) =>
+      Deno.inspect(actual.sort(), {
+        colors: false,
+        depth: 100,
+        iterableLimit: Infinity,
+        strAbbreviateSize: 100_000,
+        trailingComma: true,
+      }),
+  });
+}
 
 describe("glob", () => {
   it("should return all entries by default", async (t) => {
@@ -11,7 +24,7 @@ describe("glob", () => {
       gathered.push(entry.relative);
     }
 
-    await assertSnapshot(t, gathered);
+    await snapshot(t, gathered);
   });
 
   it("should accept a function as a matcher", async (t) => {
@@ -27,7 +40,7 @@ describe("glob", () => {
       gathered.push(entry.relative);
     }
 
-    await assertSnapshot(t, gathered);
+    await snapshot(t, gathered);
   });
 
   it("should return no entries with empty array", async (t) => {
@@ -37,7 +50,7 @@ describe("glob", () => {
       gathered.push(entry.relative);
     }
 
-    await assertSnapshot(t, gathered);
+    await snapshot(t, gathered);
   });
 
   it("returns the filtered entries when `include` option provided", async (t) => {
@@ -50,7 +63,7 @@ describe("glob", () => {
       gathered.push(entry.relative);
     }
 
-    await assertSnapshot(t, gathered);
+    await snapshot(t, gathered);
   });
 
   it("should support returning `onlyDirectories`", async (t) => {
@@ -60,6 +73,6 @@ describe("glob", () => {
       gathered.push(entry.relative);
     }
 
-    await assertSnapshot(t, gathered);
+    await snapshot(t, gathered);
   });
 });

@@ -7,16 +7,16 @@ snapshot[`glob > should return all entries by default 1`] = `
   "first/",
   "first/file.md",
   "first/nested/",
-  "first/nested/file.md",
   "first/nested/directory/",
-  "first/nested/directory/file.md",
   "first/nested/directory/file.json",
+  "first/nested/directory/file.md",
+  "first/nested/file.md",
   "second/",
   "second/file.md",
   "second/nested/",
-  "second/nested/file.md",
   "second/nested/directory/",
   "second/nested/directory/file.md",
+  "second/nested/file.md",
 ]
 `;
 
@@ -24,24 +24,21 @@ snapshot[`glob > should accept a function as a matcher 1`] = `
 [
   "file.md",
   "second/file.md",
-  "second/nested/file.md",
   "second/nested/directory/file.md",
+  "second/nested/file.md",
 ]
 `;
 
-snapshot[`glob > should return no entries with empty array 1`] = `
-[
-]
-`;
+snapshot[`glob > should return no entries with empty array 1`] = `[]`;
 
 snapshot[`glob > returns the filtered entries when \`include\` option provided 1`] = `
 [
   "first/file.md",
-  "first/nested/file.md",
   "first/nested/directory/file.md",
+  "first/nested/file.md",
   "second/file.md",
-  "second/nested/file.md",
   "second/nested/directory/file.md",
+  "second/nested/file.md",
 ]
 `;
 
