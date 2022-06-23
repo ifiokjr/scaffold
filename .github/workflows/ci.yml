@@ -4,18 +4,17 @@ on:
   push:
     branches:
       - main
-      - 'changeset-release/main'
 
   pull_request:
     branches:
       - main
 
 env:
-  DENO_DIR: .deno_cache
+  DENO_DIR: ~/.deno_cache_ci
 
 jobs:
   test:
-    name: run all checks
+    name: 🏃‍♀️ Run all checks
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -24,45 +23,42 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
 
     steps:
-      - name: cancel previous runs
-        uses: styfle/cancel-workflow-action@0.9.1
-
-      - name: checkout code repository
+      - name: 🏴‍☠️ Checkout code repository
         uses: actions/checkout@v3
 
-      - name: Cache Deno dependencies
+      - name: 📦 Cache Deno dependencies
         uses: actions/cache@v3
         with:
           path: ${{ env.DENO_DIR }}
           key: ${{ secrets.CACHE_VERSION }}-${{ hashFiles('lock.json') }}
 
-      - name: setup deno
+      - name: 🦕 setup deno
         uses: denoland/setup-deno@v1.0.0
         with:
           deno-version: ${{ matrix.deno }}
 
-      - name: lock cache
+      - name: 🔒 lock cache
         run: deno task lock
         shell: 'bash'
 
-      - name: check formatting
+      - name: 🩺 check formatting
         if: startsWith(matrix.os, 'ubuntu') && matrix.deno == 'canary'
         uses: dprint/check@v2.0
 
-      - name: lint deno files
+      - name: 👩‍⚕️ lint deno files
         if: startsWith(matrix.os, 'ubuntu') && matrix.deno == 'canary'
         run: deno lint
 
-      - name: typecheck cli
+      - name: ✋ typecheck cli
         run: deno --unstable check ./cli.ts
         shell: 'bash'
 
-      - name: typecheck entry
+      - name: ✋ typecheck entry
         run: deno --unstable check ./mod.ts
         shell: 'bash'
 
-      - name: unit test
+      - name: ✅ unit test
         run: deno task test
 
-      - name: scaffold
+      - name: 🚀 scaffold
         run: deno task scaffold --help

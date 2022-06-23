@@ -186,12 +186,13 @@ export class ProcessTemplate {
 
     const sourceIterator = glob({ cwd: source, exclude, include, dot: true });
     const template = createTemplateFactory(variables);
+    const fileTemplate = createFileTemplateFactory(variables);
 
     await ensureDir(destination);
 
     for await (const file of sourceIterator) {
       const relative = renamed[file.relative] || file.relative;
-      const templated = template(relative.replace(/\.template$/, ""));
+      const templated = fileTemplate(relative.replace(/\.template$/, ""));
       const target = path.join(destination, templated);
 
       if (file.isDirectory) {
@@ -232,6 +233,16 @@ function createTemplateFactory(variables: AnyVariables) {
   };
 }
 
+function createFileTemplateFactory(variables: AnyVariables) {
+  return (content: string): string => {
+    return render(content, { ...variables }, {
+      async: false,
+      tags: ["[[", "]]"],
+      parse: { interpolate: "", exec: "$", raw: "__" },
+    }) as string;
+  };
+}
+
 async function requestPermission(
   name: keyof ScaffoldPermissions,
   value: string,
@@ -252,6 +263,7 @@ async function requestPermission(
 
   return status.state;
 }
+
 function extractCallable<Type, Props>(
   callable: Callable<Type, Props> | undefined,
   props: Props,
