@@ -1,4 +1,4 @@
-import { AnyFunction, isFunction } from "../deps/npm.ts";
+import { isFunction } from "../deps/npm.ts";
 import { path } from "../deps/path.ts";
 import { generateLookupFiles, LoadConfigResult } from "./types.ts";
 
@@ -8,7 +8,7 @@ import { generateLookupFiles, LoadConfigResult } from "./types.ts";
  * @param source The source directory to load the template configuration from.
  */
 export async function loadImport<
-  Config extends object = any,
+  Config extends object = Record<string, unknown>,
 >(
   source: string,
   name: string,

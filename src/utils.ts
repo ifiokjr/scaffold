@@ -39,7 +39,7 @@ const decoder = new TextDecoder();
 /**
  * Decode a Uint8Array to a string.
  */
-export function uint8ArrayToString(input: Uint8Array) {
+export function uint8ArrayToString(input: Uint8Array): string {
   return decoder.decode(input);
 }
 

@@ -19,7 +19,7 @@ export function defineTemplate(
 }
 
 type MaybePromise<Type> = Type | Promise<Awaited<Type>>;
-export type AnyVariables = Record<string, any>;
+export type AnyVariables = Record<string, unknown>;
 export type Callable<Type, Props = void> =
   | MaybePromise<Type>
   | ((props: Props) => MaybePromise<Type>);
@@ -81,7 +81,10 @@ export interface TemplateProps<
    * });
    * ```
    */
-  getVariables?: Callable<Record<string, any>, BaseTemplateProps & PromptProps>;
+  getVariables?: Callable<
+    Record<string, unknown>,
+    BaseTemplateProps & PromptProps
+  >;
 
   /**
    * Gather the permissions for the worker.
@@ -136,7 +139,7 @@ export interface BaseTemplateProps {
   /**
    * All the cli arguments that were passed when created via the cli.
    */
-  initialVariables: Record<string, any>;
+  initialVariables: Record<string, unknown>;
 
   /**
    * The current permissions of the worker.

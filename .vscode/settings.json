@@ -1,6 +1,7 @@
 {
   "deno.enable": true,
   "deno.unstable": true,
+  "deno.lint": true,
   "[markdown]": {
     "editor.defaultFormatter": "dprint.dprint"
   },

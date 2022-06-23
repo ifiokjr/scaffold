@@ -13,11 +13,11 @@ export abstract class Cache {
    */
   abstract get(key: string): string | undefined;
   abstract has(key: string): boolean;
-  abstract set(key: string, value: string): void;
   abstract directory(key: string): string;
 
   abstract getKey(
     hash: string,
+    // deno-lint-ignore ban-types
     object: object,
   ): string;
 }
@@ -34,14 +34,11 @@ export class EmptyCache extends Cache {
     return crypto.randomUUID();
   }
 
-  get(key: string): string | undefined {
+  get(_: string): string | undefined {
     return;
   }
-  has(key: string): boolean {
+  has(_: string): boolean {
     return false;
-  }
-  set(key: string, value: string): void {
-    return;
   }
 }
 
@@ -57,9 +54,6 @@ export interface RepositoryCacheProps {
  * Get the repository from the cache
  */
 export class RepositoryCache extends Cache {
-  p(p: any) {
-    throw new Error("Method not implemented.");
-  }
   #directory: string;
   #log: Logger;
 
@@ -129,8 +123,6 @@ export class RepositoryCache extends Cache {
   has(hash: string): boolean {
     return this.#entries.has(hash);
   }
-
-  set(key: string, value: string): void {}
 
   getKey(hash: string, object: Record<string, string | undefined>): string {
     const { user = "", name = "", site = "", subdirectory = "" } = object;

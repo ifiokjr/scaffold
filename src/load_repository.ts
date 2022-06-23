@@ -1,6 +1,5 @@
-import { Cache, EmptyCache, RepositoryCache } from "./cache.ts";
+import { Cache, EmptyCache } from "./cache.ts";
 import { ensureDir, ensureFile, move } from "./deps/fs.ts";
-import { isString } from "./deps/npm.ts";
 import { path } from "./deps/path.ts";
 import {
   copy,

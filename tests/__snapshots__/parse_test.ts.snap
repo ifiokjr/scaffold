@@ -1,0 +1,261 @@
+export const snapshot = {};
+
+snapshot[`parseGitUrl > should parse github url: ifiokjr/scaffold#main 1`] = `
+{
+  mode: "tar",
+  name: "scaffold",
+  ref: "main",
+  site: "github",
+  ssh: "git@github.com:ifiokjr/scaffold",
+  subdirectory: undefined,
+  url: "https://github.com/ifiokjr/scaffold",
+  user: "ifiokjr",
+}
+`;
+
+snapshot[`parseGitUrl > should parse github url: test_org/test_repo 1`] = `
+{
+  mode: "tar",
+  name: "test_repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:test_org/test_repo",
+  subdirectory: undefined,
+  url: "https://github.com/test_org/test_repo",
+  user: "test_org",
+}
+`;
+
+snapshot[`parseGitUrl > should parse github url: github:test_org/test_repo 1`] = `
+{
+  mode: "tar",
+  name: "test_repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:test_org/test_repo",
+  subdirectory: undefined,
+  url: "https://github.com/test_org/test_repo",
+  user: "test_org",
+}
+`;
+
+snapshot[`parseGitUrl > should parse github url: git@github.com:test_org/test_repo 1`] = `
+{
+  mode: "tar",
+  name: "test_repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:test_org/test_repo",
+  subdirectory: undefined,
+  url: "https://github.com/test_org/test_repo",
+  user: "test_org",
+}
+`;
+
+snapshot[`parseGitUrl > should parse github url: https://github.com/test_org/test_repo.git 1`] = `
+{
+  mode: "tar",
+  name: "test_repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:test_org/test_repo",
+  subdirectory: undefined,
+  url: "https://github.com/test_org/test_repo",
+  user: "test_org",
+}
+`;
+
+snapshot[`parseGitUrl > should parse gitlab url: gitlab:Rich-Harris/degit-test-repo 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "gitlab",
+  ssh: "git@gitlab.com:Rich-Harris/degit-test-repo",
+  subdirectory: undefined,
+  url: "https://gitlab.com/Rich-Harris/degit-test-repo",
+  user: "Rich-Harris",
+}
+`;
+
+snapshot[`parseGitUrl > should parse gitlab url: git@gitlab.com:Rich-Harris/degit-test-repo 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "gitlab",
+  ssh: "git@gitlab.com:Rich-Harris/degit-test-repo",
+  subdirectory: undefined,
+  url: "https://gitlab.com/Rich-Harris/degit-test-repo",
+  user: "Rich-Harris",
+}
+`;
+
+snapshot[`parseGitUrl > should parse gitlab url: https://gitlab.com/Rich-Harris/degit-test-repo.git 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "gitlab",
+  ssh: "git@gitlab.com:Rich-Harris/degit-test-repo",
+  subdirectory: undefined,
+  url: "https://gitlab.com/Rich-Harris/degit-test-repo",
+  user: "Rich-Harris",
+}
+`;
+
+snapshot[`parseGitUrl > should parse bitbucket url: bitbucket:Rich_Harris/degit-test-repo 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "bitbucket",
+  ssh: "git@bitbucket.org:Rich_Harris/degit-test-repo",
+  subdirectory: undefined,
+  url: "https://bitbucket.org/Rich_Harris/degit-test-repo",
+  user: "Rich_Harris",
+}
+`;
+
+snapshot[`parseGitUrl > should parse bitbucket url: git@bitbucket.org:Rich_Harris/degit-test-repo 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "bitbucket",
+  ssh: "git@bitbucket.org:Rich_Harris/degit-test-repo",
+  subdirectory: undefined,
+  url: "https://bitbucket.org/Rich_Harris/degit-test-repo",
+  user: "Rich_Harris",
+}
+`;
+
+snapshot[`parseGitUrl > should parse bitbucket url: https://bitbucket.org/Rich_Harris/degit-test-repo.git 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "bitbucket",
+  ssh: "git@bitbucket.org:Rich_Harris/degit-test-repo",
+  subdirectory: undefined,
+  url: "https://bitbucket.org/Rich_Harris/degit-test-repo",
+  user: "Rich_Harris",
+}
+`;
+
+snapshot[`parseGitUrl > should parse sourcehut url: git.sr.ht/~satotake/degit-test-repo 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "git.sr.ht",
+  ssh: "git@git.sr.ht.:~satotake/degit-test-repo",
+  subdirectory: undefined,
+  url: "https://git.sr.ht./~satotake/degit-test-repo",
+  user: "~satotake",
+}
+`;
+
+snapshot[`parseGitUrl > should parse sourcehut url: https://git.sr.ht/~satotake/degit-test-repo 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "git.sr.ht",
+  ssh: "git@git.sr.ht.:~satotake/degit-test-repo",
+  subdirectory: undefined,
+  url: "https://git.sr.ht./~satotake/degit-test-repo",
+  user: "~satotake",
+}
+`;
+
+snapshot[`parseGitUrl > should parse sourcehut url: git@git.sr.ht:~satotake/degit-test-repo 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "git.sr.ht",
+  ssh: "git@git.sr.ht.:~satotake/degit-test-repo",
+  subdirectory: undefined,
+  url: "https://git.sr.ht./~satotake/degit-test-repo",
+  user: "~satotake",
+}
+`;
+
+snapshot[`parseGitUrl > should parse sourcehut url: Rich-Harris/degit-test-repo/subdir 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:Rich-Harris/degit-test-repo",
+  subdirectory: "/subdir",
+  url: "https://github.com/Rich-Harris/degit-test-repo",
+  user: "Rich-Harris",
+}
+`;
+
+snapshot[`parseGitUrl > should parse subdirectories url: test_org/scaffold/subdir#v2.0.0 1`] = `
+{
+  mode: "tar",
+  name: "scaffold",
+  ref: "v2.0.0",
+  site: "github",
+  ssh: "git@github.com:test_org/scaffold",
+  subdirectory: "/subdir",
+  url: "https://github.com/test_org/scaffold",
+  user: "test_org",
+}
+`;
+
+snapshot[`parseGitUrl > should parse subdirectories url: Rich-Harris/degit-test-repo/subdir 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:Rich-Harris/degit-test-repo",
+  subdirectory: "/subdir",
+  url: "https://github.com/Rich-Harris/degit-test-repo",
+  user: "Rich-Harris",
+}
+`;
+
+snapshot[`parseGitUrl > should parse subdirectories url: github:Rich-Harris/degit-test-repo/subdir 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:Rich-Harris/degit-test-repo",
+  subdirectory: "/subdir",
+  url: "https://github.com/Rich-Harris/degit-test-repo",
+  user: "Rich-Harris",
+}
+`;
+
+snapshot[`parseGitUrl > should parse subdirectories url: git@github.com:Rich-Harris/degit-test-repo/subdir 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:Rich-Harris/degit-test-repo",
+  subdirectory: "/subdir",
+  url: "https://github.com/Rich-Harris/degit-test-repo",
+  user: "Rich-Harris",
+}
+`;
+
+snapshot[`parseGitUrl > should parse subdirectories url: https://github.com/Rich-Harris/degit-test-repo.git/subdir 1`] = `
+{
+  mode: "tar",
+  name: "degit-test-repo",
+  ref: "HEAD",
+  site: "github",
+  ssh: "git@github.com:Rich-Harris/degit-test-repo",
+  subdirectory: "/subdir",
+  url: "https://github.com/Rich-Harris/degit-test-repo",
+  user: "Rich-Harris",
+}
+`;

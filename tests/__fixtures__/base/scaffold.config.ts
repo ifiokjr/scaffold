@@ -1,18 +1,18 @@
-import {defineTemplate} from '../../../mod.ts'
+import { defineTemplate } from "../../../mod.ts";
 
 export default defineTemplate({
-  getVariables({}) {
+  getVariables() {
     return {
-      name: 'scaffold',
-      description: 'A scaffold for Deno',
-    }
+      name: "scaffold",
+      description: "A scaffold for Deno",
+    };
   },
   getPermissions() {
-    return { env: ['git', 'pnpm'] }
+    return { env: ["git", "pnpm"] };
   },
   getInstallCommand() {
     return () => {
-      console.log('awesome!')
-    }
+      console.log("awesome!");
+    };
   },
 });

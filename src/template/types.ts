@@ -80,6 +80,7 @@ export interface LoadConfigOptions<
  * @template Config - the type of configuration that will be loaded.
  */
 
+// deno-lint-ignore no-explicit-any ban-types
 export interface LoadConfigResult<Config extends object = any> {
   /**
    * The absolute path to the resolved configuration file.

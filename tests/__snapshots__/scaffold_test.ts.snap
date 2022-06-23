@@ -1,79 +1,27 @@
 export const snapshot = {};
 
-snapshot[`parseGitUrl > should parse url: ifiokjr/scaffold#main 1`] = `
-{
-  mode: "tar",
-  name: "scaffold",
-  ref: "main",
-  site: "github",
-  ssh: "git@github.com:ifiokjr/scaffold",
-  subdirectory: undefined,
-  url: "https://github.com/ifiokjr/scaffold",
-  user: "ifiokjr",
-}
-`;
+snapshot[`scaffold > can display help 1`] = `
+'
+  \\x1b[1mUsage:\\x1b[22m   \\x1b[35mscaffold \\x1b[33m<\\x1b[35m\\x1b[35mrepo\\x1b[35m\\x1b[33m>\\x1b[35m \\x1b[33m[\\x1b[35m\\x1b[35mfolder\\x1b[35m\\x1b[33m]\\x1b[35m\\x1b[39m
+  \\x1b[1mVersion:\\x1b[22m \\x1b[33m0.0.0\\x1b[39m                   
 
-snapshot[`parseGitUrl > should parse url: test_org/scaffold/subdir#v2.0.0 1`] = `
-{
-  mode: "tar",
-  name: "scaffold",
-  ref: "v2.0.0",
-  site: "github",
-  ssh: "git@github.com:test_org/scaffold",
-  subdirectory: "/subdir",
-  url: "https://github.com/test_org/scaffold",
-  user: "test_org",
-}
-`;
+  \\x1b[1mDescription:\\x1b[22m
 
-snapshot[`parseGitUrl > should parse url: test_org/test_repo 1`] = `
-{
-  mode: "tar",
-  name: "test_repo",
-  ref: "HEAD",
-  site: "github",
-  ssh: "git@github.com:test_org/test_repo",
-  subdirectory: undefined,
-  url: "https://github.com/test_org/test_repo",
-  user: "test_org",
-}
-`;
+    Scaffold a new project from any GitHub, GitLab or BitBucket git repository.
 
-snapshot[`parseGitUrl > should parse url: github:test_org/test_repo 1`] = `
-{
-  mode: "tar",
-  name: "test_repo",
-  ref: "HEAD",
-  site: "github",
-  ssh: "git@github.com:test_org/test_repo",
-  subdirectory: undefined,
-  url: "https://github.com/test_org/test_repo",
-  user: "test_org",
-}
-`;
+  \\x1b[1mOptions:\\x1b[22m
 
-snapshot[`parseGitUrl > should parse url: git@github.com:test_org/test_repo 1`] = `
-{
-  mode: "tar",
-  name: "test_repo",
-  ref: "HEAD",
-  site: "github",
-  ssh: "git@github.com:test_org/test_repo",
-  subdirectory: undefined,
-  url: "https://github.com/test_org/test_repo",
-  user: "test_org",
-}
-`;
+    \\x1b[34m-h\\x1b[39m, \\x1b[34m--help\\x1b[39m                     \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Show this help.                                                                                                
+    \\x1b[34m-V\\x1b[39m, \\x1b[34m--version\\x1b[39m                  \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Show the version number for this program.                                                                      
+    \\x1b[34m-c\\x1b[39m, \\x1b[34m--cache\\x1b[39m           \\x1b[33m[\\x1b[39m\\x1b[35mcache\\x1b[39m\\x1b[33m]\\x1b[39m  \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Set the cache directory relative to the current directory.                                                     
+    \\x1b[34m--no-cache\\x1b[39m                     \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Disable the cache.                                                                                             
+    \\x1b[34m-l\\x1b[39m, \\x1b[34m--log-level\\x1b[39m       \\x1b[33m[\\x1b[39m\\x1b[35mlevel\\x1b[39m\\x1b[33m]\\x1b[39m  \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Set the log level.                                          (\\x1b[1mValues: \\x1b[22m\\x1b[32m"debug"\\x1b[39m, \\x1b[32m"info"\\x1b[39m, \\x1b[32m"warn"\\x1b[39m, \\x1b[32m"error"\\x1b[39m, \\x1b[32m"fatal"\\x1b[39m)
+    \\x1b[34m-s\\x1b[39m, \\x1b[34m--silent\\x1b[39m                   \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Disable all logging.                                                                                           
+    \\x1b[34m-d\\x1b[39m, \\x1b[34m--debug\\x1b[39m                    \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Enable debug logging (shorthand for \\x1b[3m\\x1b[90m--log-level=debug\\x1b[39m\\x1b[23m                                                          
+    \\x1b[34m--no-template\\x1b[39m                  \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Disable loading the \\x1b[3m\\x1b[90mtemplate.config.ts\\x1b[39m\\x1b[23m file.                                                                   
+    \\x1b[34m-n\\x1b[39m, \\x1b[34m--name\\x1b[39m            \\x1b[33m[\\x1b[39m\\x1b[35mname\\x1b[39m\\x1b[33m]\\x1b[39m   \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Set the name to be used in the template                                                                        
+    \\x1b[34m--description\\x1b[39m         \\x1b[33m[\\x1b[39m\\x1b[35mname\\x1b[39m\\x1b[33m]\\x1b[39m   \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Set the description to be used in the template                                                                 
+    \\x1b[34m-y\\x1b[39m, \\x1b[34m--no-interactive\\x1b[39m           \\x1b[31m\\x1b[1m-\\x1b[22m\\x1b[39m Disable the interactive prompt.                                                                                
 
-snapshot[`parseGitUrl > should parse url: https://github.com/test_org/test_repo.git 1`] = `
-{
-  mode: "tar",
-  name: "test_repo",
-  ref: "HEAD",
-  site: "github",
-  ssh: "git@github.com:test_org/test_repo",
-  subdirectory: undefined,
-  url: "https://github.com/test_org/test_repo",
-  user: "test_org",
-}
+'
 `;

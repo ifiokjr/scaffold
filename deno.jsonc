@@ -1,8 +1,13 @@
 {
   "tasks": {
+    "scaffold": "deno run --unstable --allow-env --allow-net --allow-read --allow-write --allow-run ./cli.ts",
+    "lock": "deno run --allow-run=deno --allow-env=CI --allow-read=./ scripts/cache.ts --reload",
+    "lock:update": "deno run --allow-run=deno --allow-read=./ scripts/cache.ts",
+    "lint": "deno lint",
     "fix": "dprint fmt",
-    "test": "deno test -A",
-    "test:watch": "deno test -A --watch"
+    "test": "deno test --unstable --allow-read --allow-write --allow-env --allow-run='deno'",
+    "check": "deno task fix && deno task lint && deno task test",
+    "test:watch": "deno test --unstable --allow-read --allow-write --allow-env --allow-run='deno' --watch"
   },
   "compilerOptions": {
     "noUncheckedIndexedAccess": true
@@ -17,6 +22,10 @@
         "**/__snapshots__"
       ]
     },
-    "rules": { "tags": ["recommended"], "include": [] }
+    "rules": {
+      "tags": ["recommended"],
+      "include": [],
+      "exclude": ["ban-types"]
+    }
   }
 }

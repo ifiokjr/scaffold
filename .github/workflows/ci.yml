@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+      - 'changeset-release/main'
+
+  pull_request:
+    branches:
+      - main
+
+env:
+  DENO_DIR: .deno_cache
+
+jobs:
+  lint:
+    name: run all checks
+    runs-on: ubuntu-20.04
+    steps:
+      - name: cancel previous runs
+        uses: styfle/cancel-workflow-action@0.9.1
+
+      - name: checkout code repository
+        uses: actions/checkout@v3
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.DENO_DIR }}
+          key: ${{ secrets.CACHE_VERSION }}-${{ hashFiles('lock.json') }}
+
+      - name: setup deno
+        uses: denoland/setup-deno@v1.0.0
+        with:
+          deno-version: v1.x # Run with latest stable Deno.
+
+      - name: pin cache from lockfile
+        run: deno task lock
+        shell: 'bash'
+
+      - name: check formatting
+        uses: dprint/check@v2.0
+
+      - name: lint deno files
+        uses: deno task lint:ci
+
+      - name: typecheck
+        run: deno --unstable check *.ts
+        shell: 'bash'

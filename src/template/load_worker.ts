@@ -8,7 +8,7 @@ interface LoadWorkerProps {
   source: string;
   destination: string;
   permissions?: Partial<ScaffoldPermissions>;
-  variables: Record<string, any>;
+  variables: Record<string, unknown>;
   interactive: boolean;
 }
 
