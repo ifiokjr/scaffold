@@ -51,7 +51,7 @@ jobs:
 
       - name: lint deno files
         if: startsWith(matrix.os, 'ubuntu') && matrix.deno == 'canary'
-        uses: deno lint
+        run: deno lint
 
       - name: typecheck cli
         run: deno --unstable check ./cli.ts
