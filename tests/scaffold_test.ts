@@ -2,19 +2,13 @@ import { glob } from "../mod.ts";
 import { VERSION } from "../src/constants.ts";
 import { path } from "../src/deps/path.ts";
 import { uint8ArrayToString } from "../src/utils.ts";
-import {
-  afterAll,
-  assertEquals,
-  assertSnapshot,
-  describe,
-  it,
-} from "./deps.ts";
-import { cwd, run } from "./helpers.ts";
+import { afterAll, assertEquals, describe, it } from "./deps.ts";
+import { cwd, run, snapshot } from "./helpers.ts";
 
-const needRemoval: string[] = [];
+const needsRemoval: string[] = [];
 
 afterAll(async () => {
-  for (const file of needRemoval) {
+  for (const file of needsRemoval) {
     await Deno.remove(file, { recursive: true });
   }
 });
@@ -25,7 +19,7 @@ describe("scaffold", () => {
     const output = uint8ArrayToString(await command.output());
     command.close();
 
-    await assertSnapshot(t, output);
+    await snapshot(t, output);
   });
 
   it("can display the version", async () => {
@@ -39,11 +33,11 @@ describe("scaffold", () => {
   it("can create templates from local folders", async (t) => {
     const target = path.join(
       cwd,
-      "tests/__fixtures__/tmp",
+      "tests/fixtures/tmp",
       crypto.randomUUID(),
     );
-    needRemoval.push(target);
-    const command = run(["./tests/__fixtures__/base", target], {
+    needsRemoval.push(target);
+    const command = run(["./tests/fixtures/base", target], {
       stdout: "piped",
       stderr: "piped",
     });
@@ -52,8 +46,6 @@ describe("scaffold", () => {
       command.output(),
       command.stderrOutput(),
     ]);
-    // console.info(uint8ArrayToString(output));
-    // console.info(uint8ArrayToString(error));
     command.close();
     const iterator = glob({ cwd: target, dot: true, junk: true });
     const files: Record<string, string> = Object.create(null);
@@ -63,6 +55,6 @@ describe("scaffold", () => {
       files[file.relative] = await Deno.readTextFile(file.absolute);
     }
 
-    await assertSnapshot(t, files);
+    await snapshot(t, files);
   });
 });

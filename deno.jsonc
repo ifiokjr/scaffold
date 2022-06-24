@@ -20,10 +20,9 @@
     "files": {
       "include": ["./"],
       "exclude": [
-        "**/node_modules",
-        "**/*-lock.json",
-        "**/__fixtures__",
-        "**/__snapshots__"
+        "lock.json",
+        "**/fixtures",
+        "**/snapshots"
       ]
     },
     "rules": {

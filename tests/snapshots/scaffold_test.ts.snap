@@ -1,0 +1,44 @@
+export const snapshot = {};
+
+snapshot[`global > scaffold > can display help 1`] = `
+
+  [1mUsage:[22m   [35mscaffold [33m<[35m[35mrepo[35m[33m>[35m [33m[[35m[35mfolder[35m[33m][35m[39m
+  [1mVersion:[22m [33m0.1.0[39m                   
+
+  [1mDescription:[22m
+
+    🏗️ Scaffold a new project from any GitHub, GitLab or BitBucket git repository.
+
+  [1mOptions:[22m
+
+    [34m-h[39m, [34m--help[39m                     [31m[1m-[22m[39m Show this help.                                                                                                                    
+    [34m-V[39m, [34m--version[39m                  [31m[1m-[22m[39m Show the version number for this program.                                                                                          
+    [34m-c[39m, [34m--cache[39m           [33m[[39m[35mcache[39m[33m][39m  [31m[1m-[22m[39m Set the cache directory relative to the current directory.                                                                         
+    [34m--no-cache[39m                     [31m[1m-[22m[39m Disable the cache.                                                                                                                 
+    [34m-d[39m, [34m--debug[39m                    [31m[1m-[22m[39m Enable debug logging (shorthand for [3m[90m--log-level=debug[39m[23m                                                                              
+    [34m-f[39m, [34m--force[39m                    [31m[1m-[22m[39m Overwrite files even if they already exist.                                                                                        
+    [34m-l[39m, [34m--log-level[39m       [33m[[39m[35mlevel[39m[33m][39m  [31m[1m-[22m[39m Set the log level.                                                              ([1mValues: [22m[32m"debug"[39m, [32m"info"[39m, [32m"warn"[39m, [32m"error"[39m, [32m"fatal"[39m)
+    [34m-s[39m, [34m--silent[39m                   [31m[1m-[22m[39m Disable all logging.                                                                                                               
+    [34m--no-template[39m                  [31m[1m-[22m[39m Disable loading the [3m[90mtemplate.config.ts[39m[23m file.                                                                                       
+    [34m-n[39m, [34m--name[39m            [33m[[39m[35mname[39m[33m][39m   [31m[1m-[22m[39m Set the name to be used in the template                                                                                            
+    [34m--description[39m         [33m[[39m[35mname[39m[33m][39m   [31m[1m-[22m[39m Set the description to be used in the template                                                                                     
+    [34m-y[39m, [34m--no-interactive[39m           [31m[1m-[22m[39m Disable the interactive prompt.                                                                                                    
+    [34m--use-temp-source[39m              [31m[1m-[22m[39m Copy local files to a temporary directory before scaffolding. This might break                                                     
+                                     local imports.                                                                                                                     
+
+
+`;
+
+snapshot[`global > scaffold > can create templates from local folders 1`] = `
+{
+  ".gitignore": "NOTHING",
+  ".should-include": "",
+  "asdf/index.js": 'import * as fs from "node:fs/promises";\\n\\nexport function asdf(filepath) {\\n  return fs.writeFile(filepath, "asdf");\\n}\\n',
+  "asdf/package.json": '{\\n  "name": "asdf",\\n  "version": "1.0.0",\\n  "type": "module",\\n  "exports": "./index.js"\\n}\\n',
+  file: "",
+  "hello.text": "hello world",
+  "package.json": '{\\n  "name": "scaffold",\\n  "description": "A scaffold for Deno",\\n  "dependencies": {\\n    "asdf": "^1.2.2"\\n  },\\n  "version": "1.0.0"\\n}\\n',
+  "rename-thee.md": "Should be renamed from \`rename-me.md\` to \`rename-thee.md\`.\\n",
+  "scaffold.json": "{}\\n",
+}
+`;

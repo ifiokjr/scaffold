@@ -1,5 +1,6 @@
 import { parseGitUrl } from "../src/parse.ts";
-import { assertSnapshot, describe, it } from "./deps.ts";
+import { describe, it } from "./deps.ts";
+import { snapshot } from "./helpers.ts";
 
 describe("parseGitUrl", () => {
   // Tests taken from https://github.com/Rich-Harris/degit/blob/64b80577acf3313b669840f7452800ee8d09fbf3/test/test.js#L43-L121
@@ -39,7 +40,7 @@ describe("parseGitUrl", () => {
   for (const [name, namedUrls] of Object.entries(urls)) {
     for (const url of namedUrls) {
       it(`should parse ${name} url: ${url}`, async (t) => {
-        await assertSnapshot(t, parseGitUrl(url));
+        await snapshot(t, parseGitUrl(url));
       });
     }
   }

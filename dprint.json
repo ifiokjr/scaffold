@@ -16,7 +16,7 @@
   "excludes": [
     "**/node_modules",
     "**/*-lock.json",
-    "**/__fixtures__",
+    "**/fixtures",
     "**/__snapshots__"
   ],
   "plugins": [

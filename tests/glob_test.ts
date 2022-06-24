@@ -1,20 +1,9 @@
 import { glob } from "../mod.ts";
 import { path } from "../src/deps/path.ts";
-import { assertSnapshot, describe, it } from "./deps.ts";
+import { describe, it } from "./deps.ts";
+import { snapshot } from "./helpers.ts";
 
-const cwd = path.fromFileUrl(new URL("__fixtures__/glob/", import.meta.url));
-function snapshot(t: Deno.TestContext, array: string[]) {
-  return assertSnapshot(t, array, {
-    serializer: (actual) =>
-      Deno.inspect(actual.sort(), {
-        colors: false,
-        depth: 100,
-        iterableLimit: Infinity,
-        strAbbreviateSize: 100_000,
-        trailingComma: true,
-      }),
-  });
-}
+const cwd = path.fromFileUrl(new URL("fixtures/glob/", import.meta.url));
 
 describe("glob", () => {
   it("should return all entries by default", async (t) => {
