@@ -1,13 +1,15 @@
 {
   "tasks": {
-    "scaffold": "deno run --unstable --allow-env --allow-net --allow-read --allow-write --allow-run ./cli.ts",
+    "install": "deno install --unstable -Af -n scaffold ./cli.ts",
+    "run": "deno run --unstable -A ./cli.ts",
     "lock": "deno run --allow-run=deno --allow-env=CI --allow-read scripts/cache.ts --reload",
     "lock:update": "deno run --allow-run=deno --allow-read scripts/cache.ts",
     "lint": "deno lint",
     "fix": "dprint fmt",
+    "typecheck": "deno --unstable check ./cli.ts ./mod.ts",
     "test": "deno test --unstable --allow-read --allow-write --allow-env --allow-run='deno'",
     "test:coverage": "deno test --coverage=coverage --unstable --allow-read --allow-write --allow-env --allow-run='deno'",
-    "check": "deno task fix && deno task lint && deno task test && CI=true deno task lock && deno task scaffold -h &> /dev/null",
+    "check": "deno task fix && deno task lint && deno task test && CI=true deno task lock && deno task run -h &> /dev/null",
     "test:watch": "deno test --unstable --allow-read --allow-write --allow-env --allow-run='deno' --watch"
   },
   "compilerOptions": {

@@ -1,8 +1,8 @@
-# scaffold
+# scaffold 🏗️
 
 > scaffold projects template with deno templates
 
-![Scaffold Cli Output!](./assets/scaffold.cast.svg "Scaffold Cli Output")
+![Scaffold Cli Output!](./assets/example.svg "Scaffold Cli Output")
 
 ## Why?
 

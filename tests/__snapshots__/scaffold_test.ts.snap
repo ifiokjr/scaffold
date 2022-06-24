@@ -7,7 +7,7 @@ snapshot[`global > scaffold > can display help 1`] = `
 
   \\x1b[1mDescription:\\x1b[22m
 
-    Scaffold a new project from any GitHub, GitLab or BitBucket git repository.
+    🏗️ Scaffold a new project from any GitHub, GitLab or BitBucket git repository.
 
   \\x1b[1mOptions:\\x1b[22m
 

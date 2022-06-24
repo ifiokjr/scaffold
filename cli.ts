@@ -44,7 +44,7 @@ const command = new Command()
   .version(VERSION)
   .arguments("<repo:string> [folder:string]")
   .description(
-    `Scaffold a new project from any GitHub, GitLab or BitBucket git repository.`,
+    `🏗️ Scaffold a new project from any GitHub, GitLab or BitBucket git repository.`,
   )
   .type("logLevel", new EnumType(["debug", "info", "warn", "error", "fatal"]))
   .option(

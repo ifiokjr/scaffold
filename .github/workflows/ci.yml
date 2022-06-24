@@ -10,7 +10,7 @@ on:
       - main
 
 env:
-  DENO_DIR: ${{ env.HOME }}/.deno_cache
+  DENO_DIR: ../.deno_cache
 
 jobs:
   test:
@@ -29,7 +29,7 @@ jobs:
       - name: 🏴‍☠️ Checkout code repository
         uses: actions/checkout@v3
 
-      - name: 📦 Cache Deno dependencies
+      - name: 📦 Cache deno dependencies
         uses: actions/cache@v3
         with:
           path: ${{ env.DENO_DIR }}
@@ -42,26 +42,30 @@ jobs:
 
       - name: 🔒 Lock cache
         run: deno task lock
-        shell: 'bash'
+        shell: bash
 
-      - name: 🩺 Check formatting
+      - name: 🚨 Formatting
         if: startsWith(matrix.os, 'ubuntu') && matrix.deno == 'canary'
         uses: dprint/check@v2.0
 
-      - name: 👩‍⚕️ Lint deno
+      - name: 🔨 Lint
         if: startsWith(matrix.os, 'ubuntu') && matrix.deno == 'canary'
         run: deno lint
+        shell: bash
 
-      - name: ✋ Typecheck cli
-        run: deno --unstable check ./cli.ts
-        shell: 'bash'
-
-      - name: ✋ Typecheck entry
-        run: deno --unstable check ./mod.ts
-        shell: 'bash'
+      - name: 🩺 Typecheck
+        run: deno task typecheck
+        shell: bash
 
       - name: ✅ Unit test
         run: deno task test
 
+      - name: 🧑‍💻 Install
+        run: |
+          deno task install
+          echo "${HOME}/.deno/bin" >> $GITHUB_PATH
+        shell: bash
+
       - name: 🚀 Scaffold
-        run: deno task scaffold --help
+        run: scaffold --help
+        shell: bash

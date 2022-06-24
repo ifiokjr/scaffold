@@ -149,3 +149,4 @@ tmp**
 **/tmp.*
 temp.*
 **/temp.*
+**/.deno_cache

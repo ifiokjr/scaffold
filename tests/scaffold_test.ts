@@ -24,7 +24,6 @@ describe("scaffold", () => {
     const command = run(["--help"], { stdout: "piped" });
     const output = uint8ArrayToString(await command.output());
     command.close();
-    console.log({ output });
 
     await assertSnapshot(t, output);
   });
