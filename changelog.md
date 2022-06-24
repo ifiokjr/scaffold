@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🔧 Fixes
+
+- Empty files were being copied over from remote repositories due to a bug in the `untar` logic. This is now fixed and tests have been added.
+
 ## 0.1.0 - [2022-06-24]
 
 Initial release of the `scaffold` project. The project is currently passing tests on macos and linux only.

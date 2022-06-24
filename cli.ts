@@ -184,7 +184,7 @@ async function scaffoldAction(
     const processor = await loadWorker({
       source,
       destination,
-      interactive: true,
+      interactive: options.interactive !== false,
       name: "scaffold",
       variables,
       permissions,

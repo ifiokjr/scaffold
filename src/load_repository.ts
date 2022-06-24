@@ -149,7 +149,6 @@ async function getTar(props: GetTarProps): Promise<void> {
   }
 
   const tarballEntries = new Untar(readerFromStreamReader(streamReader));
-  const promises: (() => Promise<void>)[] = [];
 
   for await (const entry of tarballEntries) {
     log.debug("processing the tarball entry", entry);
@@ -167,24 +166,20 @@ async function getTar(props: GetTarProps): Promise<void> {
     );
 
     if (entry.type === "directory") {
-      promises.push(async () => {
-        await ensureDir(absolutePath);
-      });
-
+      await ensureDir(absolutePath);
       continue;
     }
 
-    promises.push(async () => {
-      log.debug("ensure that path exists", { absolutePath });
-      await ensureFile(absolutePath);
-      const file = await Deno.open(absolutePath, { write: true });
-      log.debug("copying from", entry.fileName, "to", absolutePath);
-      await copy(entry, file);
-    });
+    log.debug("ensure that path exists", { absolutePath });
+    await ensureFile(absolutePath);
+    const file = await Deno.open(absolutePath, { write: true });
+    log.debug("copying from", entry.fileName, "to", absolutePath);
+    await copy(entry, file);
   }
 
-  await Promise.all(promises.map((fn) => fn()));
-  log.debug("successfully downloaded and extracted the tarball", url);
+  streamReader.releaseLock();
+
+  log.info("successfully downloaded and extracted the tarball", url);
 }
 
 async function getHash(repo: GitRepository): Promise<string | undefined> {

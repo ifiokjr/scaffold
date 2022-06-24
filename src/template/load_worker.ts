@@ -1,5 +1,4 @@
 import { Remote, wrap } from "../deps/comlink.ts";
-import { merge } from "../deps/npm.ts";
 import { ScaffoldPermissions } from "../template/define_template.ts";
 import { ProcessTemplate } from "../template/process_template.ts";
 
@@ -28,13 +27,13 @@ export async function loadWorker(
   const { destination, interactive, source, variables, name } = props;
   const url = new URL("./worker.ts", import.meta.url);
   url.searchParams.set("_now", Date.now().toString());
-  const permissions: ScaffoldPermissions = merge({
-    env: [],
-    ffi: [],
-    read: [source, destination, Deno.cwd()],
-    write: [destination],
-    run: [],
-  }, props.permissions ?? {});
+  const permissions: ScaffoldPermissions = {
+    env: props.permissions?.env ?? [],
+    ffi: props.permissions?.ffi ?? [],
+    read: [source, destination, Deno.cwd(), ...(props.permissions?.read ?? [])],
+    write: [destination, ...(props.permissions?.write ?? [])],
+    run: props.permissions?.run ?? [],
+  };
 
   const worker = new Worker(url.href, {
     type: "module",
