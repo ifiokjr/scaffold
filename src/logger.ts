@@ -1,5 +1,15 @@
 import { colors } from "./deps/cli.ts";
-import { isArray, isObject, isPrimitive } from "./deps/npm.ts";
+import {
+  isArray,
+  isBoolean,
+  isError,
+  isNullOrUndefined,
+  isNumber,
+  isObject,
+  isPrimitive,
+  isString,
+  isSymbol,
+} from "./deps/npm.ts";
 import {
   BaseHandler,
   HandlerOptions,
@@ -118,24 +128,23 @@ const symbols: Record<LevelName, string> = Deno.build.os === "windows"
 
 class BetterLogger extends Logger {
   override asString(data: unknown): string {
-    if (typeof data === "string") {
+    if (isString(data)) {
       return data;
     } else if (
-      data === null ||
-      typeof data === "number" ||
+      isNullOrUndefined(data) ||
+      isNumber(data) ||
       typeof data === "bigint" ||
-      typeof data === "boolean" ||
-      typeof data === "undefined" ||
-      typeof data === "symbol"
+      isBoolean(data) ||
+      isSymbol(data)
     ) {
       return String(data);
-    } else if (data instanceof Error) {
-      return data.stack!;
+    } else if (isError(data)) {
+      return data.stack ?? "";
     } else if (typeof data === "object") {
       return Deno.inspect(data, { colors: !Deno.noColor });
     }
 
-    return "undefined";
+    return "[unknown]";
   }
 }
 

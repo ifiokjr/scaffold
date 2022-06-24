@@ -208,7 +208,7 @@ export class ProcessTemplate {
         // move the templated data to the new file.
         await Deno.writeTextFile(target, content);
       } else {
-        await copy(file.absolute, target);
+        await copy(file.absolute, target, { overwrite: true });
       }
     }
   }

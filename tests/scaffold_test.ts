@@ -1,4 +1,5 @@
 import { glob } from "../mod.ts";
+import { VERSION } from "../src/constants.ts";
 import { path } from "../src/deps/path.ts";
 import { uint8ArrayToString } from "../src/utils.ts";
 import {
@@ -23,6 +24,7 @@ describe("scaffold", () => {
     const command = run(["--help"], { stdout: "piped" });
     const output = uint8ArrayToString(await command.output());
     command.close();
+    console.log({ output });
 
     await assertSnapshot(t, output);
   });
@@ -32,10 +34,10 @@ describe("scaffold", () => {
     const output = uint8ArrayToString(await command.output()).trim();
     command.close();
 
-    assertEquals(output, "0.0.0");
+    assertEquals(output, VERSION);
   });
 
-  it.only("can create templates from local folders", async (t) => {
+  it("can create templates from local folders", async (t) => {
     const target = path.join(
       cwd,
       "tests/__fixtures__/tmp",

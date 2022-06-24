@@ -2,6 +2,8 @@
 
 > scaffold projects template with deno templates
 
+![Scaffold Cli Output!](./assets/scaffold.cast.svg "Scaffold Cli Output")
+
 ## Why?
 
 Sometimes you want to quickly get started with a project without worrying about setting up the boilerplate every time. `scaffold` is a solution for using remote git repositories to quickly bootstrap projects and configure them to your exact requirements.
@@ -25,7 +27,7 @@ iwr https://deno.land/x/scaffold/scripts/install.ps1 -useb | iex
 #### Direct (deno command)
 
 ```bash
-deno install --unstable --allow-env --allow-net --allow-read --allow-write --allow-run -n scaffold https://deno.land/x/scaffold/cli.ts
+deno install --unstable -Af -n scaffold https://deno.land/x/scaffold/cli.ts
 ```
 
 ## Usage
@@ -88,5 +90,5 @@ File names can use an alternate platform independent syntax. For example, `[[it.
 ## Gratitude
 
 - This project was heavily influenced by [`degit`](https://github.com/Rich-Harris/degit) by **[@Rish-Harris](https://github.com/Rich-Harris)**.
-- Special thanks to [`deno`](https://github.com/denoland/deno) for creating an elegant runtime for TypeScript development. It's been a joy.
-- Thanks you [@dsherret](https://github.com/dsherret) for creating [`dprint`](https://github.com/dprint/dprint), a blazing fast formatter that I'm falling in love with.
+- Special thanks to [`deno`](https://github.com/denoland/deno) for creating an elegant runtime for TypeScript development. It's been a joy to use.
+- Thanks [@dsherret](https://github.com/dsherret) for creating [`dprint`](https://github.com/dprint/dprint), a blazing fast formatter that I'm falling in love with.

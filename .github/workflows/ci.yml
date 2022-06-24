@@ -10,7 +10,7 @@ on:
       - main
 
 env:
-  DENO_DIR: $HOME/.deno_cache
+  DENO_DIR: ${{ env.HOME }}/.deno_cache
 
 jobs:
   test:
@@ -33,35 +33,35 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.DENO_DIR }}
-          key: ${{ secrets.CACHE_VERSION }}-${{ hashFiles('lock.json') }}
+          key: ${{ secrets.CACHE_VERSION }}-${{ hashFiles('lock.json') }}-${{ matrix.deno }}-${{ matrix.os }}
 
-      - name: 🦕 setup deno
+      - name: 🦕 Setup deno
         uses: denoland/setup-deno@v1.0.0
         with:
           deno-version: ${{ matrix.deno }}
 
-      - name: 🔒 lock cache
+      - name: 🔒 Lock cache
         run: deno task lock
         shell: 'bash'
 
-      - name: 🩺 check formatting
+      - name: 🩺 Check formatting
         if: startsWith(matrix.os, 'ubuntu') && matrix.deno == 'canary'
         uses: dprint/check@v2.0
 
-      - name: 👩‍⚕️ lint deno files
+      - name: 👩‍⚕️ Lint deno
         if: startsWith(matrix.os, 'ubuntu') && matrix.deno == 'canary'
         run: deno lint
 
-      - name: ✋ typecheck cli
+      - name: ✋ Typecheck cli
         run: deno --unstable check ./cli.ts
         shell: 'bash'
 
-      - name: ✋ typecheck entry
+      - name: ✋ Typecheck entry
         run: deno --unstable check ./mod.ts
         shell: 'bash'
 
-      - name: ✅ unit test
+      - name: ✅ Unit test
         run: deno task test
 
-      - name: 🚀 scaffold
+      - name: 🚀 Scaffold
         run: deno task scaffold --help
