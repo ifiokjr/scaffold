@@ -1,6 +1,6 @@
 # scaffold 🏗️
 
-> scaffold projects template with deno templates
+> scaffold project templates with deno
 
 ![Scaffold Cli Output!](./assets/example.svg "Scaffold Cli Output")
 
