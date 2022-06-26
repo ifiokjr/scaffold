@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Breaking
+
+- `--cache` has been renamed to `--cache-dir` and can be used to set a custom cache directory.
+
+### ✨ Features
+
+- `https://deno.land/x/scaffold/scaffold.ts` is now the entry point for installing the CLI. All documentation has been updated to reflect this.
+- Add new commands, `upgrade`, `help`, `completions` and `alias`.
+-
+
 ## 0.1.1 - [2022-06-24]
 
 ### 🔧 Fixes

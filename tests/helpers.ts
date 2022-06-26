@@ -16,7 +16,7 @@ export function run(
       "--allow-read",
       "--allow-write",
       "--allow-run",
-      "cli.ts",
+      "scaffold.ts",
       ...args,
     ],
     ...options,

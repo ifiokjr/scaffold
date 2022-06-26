@@ -13,9 +13,9 @@ describe("parseGitUrl", () => {
       "https://github.com/test_org/test_repo.git",
     ],
     gitlab: [
-      "gitlab:Rich-Harris/degit-test-repo",
-      "git@gitlab.com:Rich-Harris/degit-test-repo",
-      "https://gitlab.com/Rich-Harris/degit-test-repo.git",
+      "gitlab:ifiokjr/scaffold-test",
+      "git@gitlab.com:ifiokjr/scaffold-test",
+      "https://gitlab.com/ifiokjr/scaffold-test.git",
     ],
     bitbucket: [
       "bitbucket:Rich_Harris/degit-test-repo",

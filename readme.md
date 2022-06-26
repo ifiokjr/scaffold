@@ -27,7 +27,7 @@ iwr https://deno.land/x/scaffold/scripts/install.ps1 -useb | iex
 #### Direct (deno command)
 
 ```bash
-deno install --unstable -Af -n scaffold https://deno.land/x/scaffold/cli.ts
+deno install --unstable -Af -n scaffold https://deno.land/x/scaffold/scaffold.ts
 ```
 
 ## Usage

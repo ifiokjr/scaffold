@@ -1,6 +1,14 @@
 import { RepositoryCache } from "./src/cache.ts";
 import { VERSION } from "./src/constants.ts";
-import { colors, Command, EnumType } from "./src/deps/cli.ts";
+import {
+  colors,
+  Command,
+  CompletionsCommand,
+  DenoLandProvider,
+  EnumType,
+  HelpCommand,
+  UpgradeCommand,
+} from "./src/deps/cli.ts";
 import { copy, emptyDir, ensureDir } from "./src/deps/fs.ts";
 import { isError, isString } from "./src/deps/npm.ts";
 import { path } from "./src/deps/path.ts";
@@ -13,10 +21,6 @@ import { loadWorker } from "./src/template/load_worker.ts";
 import { readJson, wait, writeJson } from "./src/utils.ts";
 import { directoryIsEmpty } from "./src/utils/directory-is-empty.ts";
 
-if (!import.meta.main) {
-  throw new ScaffoldError("The cli should not be imported as a module");
-}
-
 const LogLevelEnum = new EnumType([
   "debug",
   "info",
@@ -28,7 +32,7 @@ const LogLevelEnum = new EnumType([
 type Extract<Type> = Type extends EnumType<infer Enum> ? Enum : never;
 
 type ScaffoldActionOptions = Parameters<
-  Parameters<typeof command["action"]>[0]
+  Parameters<typeof main["action"]>[0]
 >[0];
 const logLevelMap: Record<Extract<typeof LogLevelEnum>, LevelName> = {
   debug: "DEBUG",
@@ -39,19 +43,20 @@ const logLevelMap: Record<Extract<typeof LogLevelEnum>, LevelName> = {
   none: "NOTSET",
 };
 
-const command = new Command()
+const main = new Command()
   .name("scaffold")
   .version(VERSION)
   .arguments("<repo:string> [folder:string]")
   .description(
     `🏗️ Scaffold a new project from any GitHub, GitLab or BitBucket git repository.`,
   )
-  .type("logLevel", new EnumType(["debug", "info", "warn", "error", "fatal"]))
+  .type("logLevel", LogLevelEnum)
   .option(
-    "-c, --cache [cache:string]",
-    "Set the cache directory relative to the current directory.",
+    "--cache-dir [cacheDir:string]",
+    "Set a custom cache directory.",
   )
   .option("--no-cache", "Disable the cache.")
+  .option("--reset-cache", "Reset the cache.")
   .option(
     "-d, --debug",
     `Enable debug logging (shorthand for ${
@@ -62,11 +67,12 @@ const command = new Command()
   .option(
     "-l, --log-level [level:logLevel]",
     "Set the log level.",
+    { hidden: true },
   )
   .option("-s, --silent", "Disable all logging.")
   .option(
     "--no-template",
-    `Disable loading the ${colors.gray.italic("template.config.ts")} file.`,
+    `Disable loading the ${colors.gray.italic("scaffold.config.ts")} file.`,
   )
   .option(
     "-n,--name [name:string]",
@@ -78,20 +84,60 @@ const command = new Command()
   )
   .option(
     "-y, --no-interactive",
-    `Disable the interactive prompt.`,
+    `Disable the interactive prompt. Might break permission requests.`,
   )
   .option(
-    "--use-temp-source",
-    `Copy local files to a temporary directory before scaffolding. This might break local imports.`,
+    "--use-temporary-source",
+    `Copy local files to a temporary directory.`,
   )
-  .action(scaffoldAction);
+  .example(
+    "GitHub",
+    `${
+      colors.yellow("scaffold ifiokjr/templates/deno my-project")
+    }\nThis will use the deno directory within the repository https://github.com/ifiokjr/templates`,
+  )
+  .example(
+    "GitLab",
+    `${
+      colors.yellow("scaffold gitlab:ifiokjr/scaffold-test my-project")
+    }\nThis will pull directly from https://gitlab.com/ifiokjr/scaffold-test`,
+  )
+  .example(
+    "Local",
+    `${
+      colors.yellow("scaffold ./path/to/local/directory my-project")
+    }\nThe path must start with './' to be recognized as a local directory.`,
+  )
+  .action(mainAction);
 
-await command.parse(Deno.args);
+const alias = new Command()
+  .arguments("<alias:string> <repo:string>")
+  .description(
+    "Create an alias for a template repository",
+  ).action((_, alias, repo) => {
+    const log = createLogger({ name: "scaffold" });
+    log.info("Not yet implemented.", { alias, repo });
+  });
+
+const upgrade = new UpgradeCommand({
+  main: "scaffold.ts",
+  provider: new DenoLandProvider(),
+  args: ["--unstable", "-A", "-n", "scaffold"],
+});
+
+// Additional commands
+main
+  .command("upgrade", upgrade)
+  .command("help", new HelpCommand().global())
+  .command("completions", new CompletionsCommand())
+  .command("alias", alias);
+
+await main.parse(Deno.args);
 
 /**
  * The action to be performed by the scaffold command.
  */
-async function scaffoldAction(
+async function mainAction(
   options: ScaffoldActionOptions,
   templateFolder: string,
   folder = "",
@@ -116,8 +162,8 @@ async function scaffoldAction(
     text: `Scaffolding the project ${colors.gray.italic(templateFolder)}`,
   });
   const shouldCache = options.cache !== false;
-  const cacheDirectory = isString(options.cache)
-    ? path.resolve(options.cache)
+  const cacheDirectory = isString(options.cacheDir)
+    ? path.resolve(options.cacheDir)
     : undefined;
   const cache = new RepositoryCache({ directory: cacheDirectory, log });
   let exit = 0;
@@ -130,6 +176,10 @@ async function scaffoldAction(
       log.info("Cache successfully loaded");
     }
 
+    if (options.resetCache === true) {
+      await Deno.remove(cache.directory(), { recursive: true });
+    }
+
     let source: string;
     let permissions: Partial<ScaffoldPermissions> = {};
     let key: string | undefined;
@@ -138,7 +188,7 @@ async function scaffoldAction(
       spinner.text("Loading local folder...");
       source = path.resolve(templateFolder);
 
-      if (options.useTempSource) {
+      if (options.useTemporarySource) {
         source = await Deno.makeTempDir();
         temporary.push(source);
         await copy(path.resolve(templateFolder), source, { overwrite: true });

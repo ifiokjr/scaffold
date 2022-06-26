@@ -1,3 +1,7 @@
+export {
+  DenoLandProvider,
+  UpgradeCommand,
+} from "https://deno.land/x/cliffy@v0.24.2/command/upgrade/mod.ts";
 export * from "https://deno.land/x/cliffy@v0.24.2/mod.ts";
 export {
   type PersistOptions,
