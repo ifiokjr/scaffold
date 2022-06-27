@@ -97,7 +97,6 @@ export class RepositoryCache extends EmptyCache {
     await ensureDir(this.#directory);
 
     for await (const entry of Deno.readDir(this.#directory)) {
-      console.log(entry);
       if (!entry.isDirectory) {
         continue;
       }
@@ -107,7 +106,6 @@ export class RepositoryCache extends EmptyCache {
 
     await this.#store.load();
 
-    console.log(this.#directory);
     this.#log.debug("Every cache item", ...this.#entries.keys());
   }
 

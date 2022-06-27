@@ -8,7 +8,6 @@ import {
   HelpCommand,
   UpgradeCommand,
 } from "./src/deps/cli.ts";
-import { isColorSupported } from './src/utils/is_color_supported.ts'
 import { copy, emptyDir, ensureDir } from "./src/deps/fs.ts";
 import { isError, isString } from "./src/deps/npm.ts";
 import { path } from "./src/deps/path.ts";
@@ -20,21 +19,22 @@ import { ScaffoldPermissions } from "./src/template/define_template.ts";
 import { loadWorker } from "./src/template/load_worker.ts";
 import { readJson, wait, writeJson } from "./src/utils.ts";
 import { directoryIsEmpty } from "./src/utils/directory_is_empty.ts";
+import { isColorSupported } from "./src/utils/is_color_supported.ts";
 
 type ScaffoldActionOptions = Parameters<
   Parameters<typeof main["action"]>[0]
 >[0];
 
 const main = new Command()
+  .globalOption(
+    "--cache-dir [cacheDir:string]",
+    "Set a custom cache directory.",
+  )
   .name("scaffold")
   .version(VERSION)
   .arguments("<repo:string> [folder:string]")
   .description(
     `🏗️ Scaffold a new project from any GitHub, GitLab or BitBucket git repository.`,
-  )
-  .option(
-    "--cache-dir [cacheDir:string]",
-    "Set a custom cache directory.",
   )
   .option(
     "--cache-only [cacheOnly:string]",
@@ -88,20 +88,43 @@ const main = new Command()
   )
   .action(mainAction);
 
-const alias = new Command()
+const invalidAlias = new Set([
+  "help",
+  "version",
+  "completions",
+  "upgrade",
+  "alias",
+  "cache",
+]);
+
+main
+  .command("alias")
   .arguments("<alias:string> <repo:string>")
   .description(
     "Create an alias for a template repository",
-  ).action(async (_, alias, repo) => {
-    const spinner = wait({text: `Creating alias: ${alias} for repo: ${repo}`});
-    const cache = new RepositoryCache({
-      log: createLogger({ name: "scaffold", levelName: "WARNING" }),
+  ).action(async (options, alias, repo) => {
+    const spinner = wait({
+      text: `Creating alias: ${alias} for repo: ${repo}`,
     });
+    const log = createLogger({ name: "scaffold", levelName: "WARNING" });
+    const directory = isString(options.cacheDir)
+      ? path.resolve(options.cacheDir)
+      : undefined;
+    const cache = new RepositoryCache({ directory, log });
 
     await cache.store.load();
 
     if (cache.store.getAlias(alias)) {
       spinner.fail(`Alias already exists.`);
+      Deno.exit(1);
+    }
+
+    if (invalidAlias.has(alias)) {
+      spinner.fail(
+        `The provided alias name is invalid. These names are reserved: ${
+          [...invalidAlias].join(", ")
+        }`,
+      );
       Deno.exit(1);
     }
 
@@ -119,8 +142,8 @@ const upgrade = new UpgradeCommand({
 main
   .command("upgrade", upgrade)
   .command("help", new HelpCommand().global())
-  .command("completions", new CompletionsCommand())
-  .command("alias", alias);
+  .command("completions", new CompletionsCommand());
+// .command("alias", alias);
 
 await main.parse(Deno.args);
 
@@ -184,7 +207,10 @@ async function mainAction(
 
       key = recent;
       source = cache.getDownloadPath(key);
-    } else if (["./", "../", "/"].some((p) => templateFolder.startsWith(p)) || path.isAbsolute(templateFolder)) {
+    } else if (
+      ["./", "../", "/"].some((p) => templateFolder.startsWith(p)) ||
+      path.isAbsolute(templateFolder)
+    ) {
       spinner.text("Loading local folder...");
       source = path.resolve(templateFolder);
 
@@ -252,7 +278,7 @@ async function mainAction(
       variables,
       permissions,
     });
-    spinner.succeed('Scaffold fully loaded.');
+    spinner.succeed("Scaffold fully loaded.");
 
     // check if this should be called.
     await processor.getVariables();
@@ -280,16 +306,16 @@ async function mainAction(
     spinner.fail(`Something went wrong: ${message}`);
     exit = 1;
   } finally {
-    let removed = false
+    let removed = false;
     // Remove all directories that were created.
     for (const temp of temporary) {
       removed = true;
-      log.debug('Removing temporary directory:', temp);
+      log.debug("Removing temporary directory:", temp);
       await Deno.remove(temp, { recursive: true });
     }
 
     if (removed) {
-      log.debug('Successfully removed temporary directories.');
+      log.debug("Successfully removed temporary directories.");
     }
 
     Deno.exit(exit);

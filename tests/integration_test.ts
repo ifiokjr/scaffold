@@ -1,8 +1,8 @@
 import { ensureDir } from "../src/deps/fs.ts";
 import { path } from "../src/deps/path.ts";
 import { writeJson } from "../src/utils.ts";
-import { assertEquals } from "./deps.ts";
-import { runWithStdin, snapshotDirectory } from "./helpers.ts";
+import { assertEquals, assertStringIncludes } from "./deps.ts";
+import { runWithStdin, snapshot, snapshotDirectory } from "./helpers.ts";
 
 const cwd = new URL("../", import.meta.url).pathname;
 const template = { deno: "ifiokjr/templates/deno#9fdf5e0" };
@@ -42,7 +42,8 @@ Deno.test({
 }, async (t) => {
   const cacheDirectory = path.join(
     cwd,
-    "tests/fixtures/tmp/deno-cache/persist",
+    "tests/fixtures/tmp/deno-cache",
+    crypto.randomUUID(),
   );
   await ensureDir(cacheDirectory);
   const outputDirectory = await Deno.makeTempDir();
@@ -53,12 +54,7 @@ Deno.test({
     ),
     { "env": [], "ffi": [], "read": [], "run": ["git", "deno"], "write": [] },
   );
-  const cmd = [
-    "--debug",
-    `--cache-dir=${cacheDirectory}`,
-    template.deno,
-    outputDirectory,
-  ];
+  const cmd = [`--cache-dir=${cacheDirectory}`, template.deno, outputDirectory];
 
   const stdin = [
     "WithPermissions\r",
@@ -66,10 +62,61 @@ Deno.test({
     "\r",
     "\r",
   ];
-  const { status, output, error } = await runWithStdin(cmd, stdin);
+  const { status } = await runWithStdin(cmd, stdin);
   assertEquals(status.success, true);
 
-  console.log(output, error);
+  await snapshotDirectory({
+    t,
+    cwd: outputDirectory,
+    dot: true,
+    junk: true,
+    exclude: ["**/.git/", "!**/.git/COMMIT_EDITMSG", "!.git/HEAD"],
+  });
+
+  // cleanup
+  await Deno.remove(outputDirectory, { recursive: true });
+  await Deno.remove(cacheDirectory, { recursive: true });
+});
+
+Deno.test({
+  name: `can create aliases`,
+  ignore,
+}, async (t) => {
+  const cacheDirectory = path.join(
+    cwd,
+    "tests/fixtures/tmp/deno-cache",
+    crypto.randomUUID(),
+  );
+  await ensureDir(cacheDirectory);
+  const outputDirectory = await Deno.makeTempDir();
+  await writeJson(
+    path.join(
+      cacheDirectory,
+      "ifiokjr-templates-github---deno-9fdf5e0037d3f705c9d432bb76247c3fdf3611d9.json",
+    ),
+    { "env": [], "ffi": [], "read": [], "run": ["git", "deno"], "write": [] },
+  );
+  const alias = "deno";
+  let cmd = ["alias", `--cache-dir=${cacheDirectory}`, alias, template.deno];
+  const successResult = await runWithStdin(cmd, []);
+  assertStringIncludes(successResult.output, "Alias created");
+  assertEquals(successResult.status.success, true);
+
+  const failureResult = await runWithStdin(cmd, []);
+  assertStringIncludes(failureResult.output, "Alias already exists");
+  assertEquals(failureResult.status.success, false);
+
+  cmd = [`--cache-dir=${cacheDirectory}`, alias, outputDirectory];
+
+  const stdin = [
+    "WithPermissions\r",
+    "This is the best thing to know!\r",
+    "\r",
+    "\r",
+  ];
+  const { status } = await runWithStdin(cmd, stdin);
+  assertEquals(status.success, true);
+
   await snapshotDirectory({
     t,
     cwd: outputDirectory,
