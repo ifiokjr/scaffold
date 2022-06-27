@@ -77,11 +77,32 @@ export function getPath(filepath: string | URL): string {
     : normalize(filepath);
 }
 
-export async function readJson(path: string) {
+interface ReadJsonOptions {
+  /**
+   * When set to true, the file with the default data will be created if it does
+   * not exist.
+   */
+  create?: boolean;
+
+  /**
+   * The default data to use when the file does not exist.
+   *
+   * @default {}
+   */
+  defaultData?: object;
+}
+
+export async function readJson(path: string, options: ReadJsonOptions = {}) {
+  const { create = false, defaultData = Object.create(null) } = options;
+
   try {
     return JSON.parse(await Deno.readTextFile(path));
   } catch {
-    return {};
+    if (create) {
+      await Deno.writeTextFile(path, JSON.stringify(defaultData));
+    }
+
+    return defaultData;
   }
 }
 

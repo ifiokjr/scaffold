@@ -4,40 +4,40 @@ import { path } from "./deps/path.ts";
 import { Logger } from "./deps/std.ts";
 import { CacheError } from "./errors.ts";
 import { createLogger } from "./logger.ts";
+import { Store } from "./store.ts";
 import { getPath } from "./utils.ts";
 import { getHomeDirectory } from "./utils/get_home_directory.ts";
 
-export abstract class Cache {
+export interface Cache {
   /**
-   * Provide a key to get the cached directory.
+   * Check whether the cache already has an entry for the given key.
    */
-  abstract get(key: string): string | undefined;
-  abstract has(key: string): boolean;
-  abstract directory(key: string): string;
+  hasKey(key: string): boolean;
 
-  abstract getKey(
-    hash: string,
-    // deno-lint-ignore ban-types
-    object: object,
-  ): string;
+  /**
+   * Get the path to the cached download.
+   */
+  getDownloadPath(key: string): string;
+
+  /**
+   * Create a unique key for the provided data.
+   */
+  getKey(hash: string, object: object): string;
 }
 
 /**
  * A cache that does nothing.
  */
-export class EmptyCache extends Cache {
-  directory(key: string): string {
-    return getPath(path.join(getTempDirectory(), key));
+export class EmptyCache implements Cache {
+  getDownloadPath(key: string): string {
+    return getPath(path.join(getTempDirectory(), ".scaffold", key));
   }
 
-  getKey(): string {
+  getKey(_: string, _object: object): string {
     return crypto.randomUUID();
   }
 
-  get(_: string): string | undefined {
-    return;
-  }
-  has(_: string): boolean {
+  hasKey(_: string): boolean {
     return false;
   }
 }
@@ -51,16 +51,26 @@ export interface RepositoryCacheProps {
 }
 
 /**
- * Get the repository from the cache
+ * Get the repository from the cache.
+ *
+ * This also provides the store.
  */
-export class RepositoryCache extends Cache {
-  #directory: string;
-  #log: Logger;
+export class RepositoryCache extends EmptyCache {
+  readonly #directory: string;
+  readonly #log: Logger;
+  readonly #store: Store;
 
   /**
    * The hash of the repository and the absolute path to the hashed path.
    */
   #entries = new Map<string, string>();
+
+  /**
+   * The store for configuration and the cache.
+   */
+  get store(): Store {
+    return this.#store;
+  }
 
   constructor(props: RepositoryCacheProps) {
     super();
@@ -75,6 +85,7 @@ export class RepositoryCache extends Cache {
     this.#log = props.log ??
       createLogger({ name: "scaffold:cache", levelName: "CRITICAL" });
     this.#directory = directory;
+    this.#store = new Store(path.join(directory, "store.json"));
   }
 
   /**
@@ -86,6 +97,7 @@ export class RepositoryCache extends Cache {
     await ensureDir(this.#directory);
 
     for await (const entry of Deno.readDir(this.#directory)) {
+      console.log(entry);
       if (!entry.isDirectory) {
         continue;
       }
@@ -93,14 +105,23 @@ export class RepositoryCache extends Cache {
       this.#entries.set(entry.name, path.join(this.#directory, entry.name));
     }
 
-    this.#log.debug("every cache item", this.#entries.keys());
+    await this.#store.load();
+
+    console.log(this.#directory);
+    this.#log.debug("Every cache item", ...this.#entries.keys());
   }
 
   /**
    * Get the directory for the hashed repository.
    */
-  directory(key = "") {
+  override getDownloadPath(key = "") {
     return getPath(path.join(this.#directory, key));
+  }
+
+  async reset() {
+    this.#entries.clear();
+    await Deno.remove(this.#directory, { recursive: true });
+    await this.store.reset();
   }
 
   /**
@@ -120,11 +141,14 @@ export class RepositoryCache extends Cache {
   /**
    * Check whether the cache contains the repository hash.
    */
-  has(hash: string): boolean {
+  override hasKey(hash: string): boolean {
     return this.#entries.has(hash);
   }
 
-  getKey(hash: string, object: Record<string, string | undefined>): string {
+  override getKey(
+    hash: string,
+    object: Record<string, string | undefined>,
+  ): string {
     const { user = "", name = "", site = "", subdirectory = "" } = object;
     const parts = [user, name, site, subdirectory, hash];
     let key = "";
@@ -154,7 +178,7 @@ function getDefaultCache() {
   return path.join(homeDirectory, ".scaffold", "cache");
 }
 
-function getTempDirectory() {
+export function getTempDirectory() {
   if (Deno.build.os === "windows") {
     return Deno.env.get("TMP") || Deno.env.get("TEMP") ||
       Deno.env.get("USERPROFILE") || Deno.env.get("SystemRoot") || "";

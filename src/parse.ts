@@ -17,7 +17,7 @@ const GIT_URL_REGEX =
 /**
  * From the provided string, extract the hostname and the path.
  *
- * Taken from https://github.com/Rich-Harris/degit/blob/64b80577acf3313b669840f7452800ee8d09fbf3/src/index.js#L327-L364
+ * Adapted from https://github.com/Rich-Harris/degit/blob/64b80577acf3313b669840f7452800ee8d09fbf3/src/index.js#L327-L364
  */
 export function parseGitUrl(source: string): GitRepository | undefined {
   const match = matchOne(source, GIT_URL_REGEX);

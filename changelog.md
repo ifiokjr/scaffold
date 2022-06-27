@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Breaking
+### 💥 Breaking
 
 - `--cache` has been renamed to `--cache-dir` and can be used to set a custom cache directory.
 

@@ -65,42 +65,42 @@ snapshot[`parseGitUrl > should parse github url: https://github.com/test_org/tes
 }
 `;
 
-snapshot[`parseGitUrl > should parse gitlab url: gitlab:Rich-Harris/degit-test-repo 1`] = `
+snapshot[`parseGitUrl > should parse gitlab url: gitlab:ifiokjr/scaffold-test 1`] = `
 {
   mode: "tar",
-  name: "degit-test-repo",
+  name: "scaffold-test",
   ref: "HEAD",
   site: "gitlab",
-  ssh: "git@gitlab.com:Rich-Harris/degit-test-repo",
+  ssh: "git@gitlab.com:ifiokjr/scaffold-test",
   subdirectory: undefined,
-  url: "https://gitlab.com/Rich-Harris/degit-test-repo",
-  user: "Rich-Harris",
+  url: "https://gitlab.com/ifiokjr/scaffold-test",
+  user: "ifiokjr",
 }
 `;
 
-snapshot[`parseGitUrl > should parse gitlab url: git@gitlab.com:Rich-Harris/degit-test-repo 1`] = `
+snapshot[`parseGitUrl > should parse gitlab url: git@gitlab.com:ifiokjr/scaffold-test 1`] = `
 {
   mode: "tar",
-  name: "degit-test-repo",
+  name: "scaffold-test",
   ref: "HEAD",
   site: "gitlab",
-  ssh: "git@gitlab.com:Rich-Harris/degit-test-repo",
+  ssh: "git@gitlab.com:ifiokjr/scaffold-test",
   subdirectory: undefined,
-  url: "https://gitlab.com/Rich-Harris/degit-test-repo",
-  user: "Rich-Harris",
+  url: "https://gitlab.com/ifiokjr/scaffold-test",
+  user: "ifiokjr",
 }
 `;
 
-snapshot[`parseGitUrl > should parse gitlab url: https://gitlab.com/Rich-Harris/degit-test-repo.git 1`] = `
+snapshot[`parseGitUrl > should parse gitlab url: https://gitlab.com/ifiokjr/scaffold-test.git 1`] = `
 {
   mode: "tar",
-  name: "degit-test-repo",
+  name: "scaffold-test",
   ref: "HEAD",
   site: "gitlab",
-  ssh: "git@gitlab.com:Rich-Harris/degit-test-repo",
+  ssh: "git@gitlab.com:ifiokjr/scaffold-test",
   subdirectory: undefined,
-  url: "https://gitlab.com/Rich-Harris/degit-test-repo",
-  user: "Rich-Harris",
+  url: "https://gitlab.com/ifiokjr/scaffold-test",
+  user: "ifiokjr",
 }
 `;
 

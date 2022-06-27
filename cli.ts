@@ -5,10 +5,10 @@ import {
   Command,
   CompletionsCommand,
   DenoLandProvider,
-  EnumType,
   HelpCommand,
   UpgradeCommand,
 } from "./src/deps/cli.ts";
+import { isColorSupported } from './src/utils/is_color_supported.ts'
 import { copy, emptyDir, ensureDir } from "./src/deps/fs.ts";
 import { isError, isString } from "./src/deps/npm.ts";
 import { path } from "./src/deps/path.ts";
@@ -19,29 +19,11 @@ import { createLogger } from "./src/logger.ts";
 import { ScaffoldPermissions } from "./src/template/define_template.ts";
 import { loadWorker } from "./src/template/load_worker.ts";
 import { readJson, wait, writeJson } from "./src/utils.ts";
-import { directoryIsEmpty } from "./src/utils/directory-is-empty.ts";
-
-const LogLevelEnum = new EnumType([
-  "debug",
-  "info",
-  "warn",
-  "error",
-  "fatal",
-  "none",
-]);
-type Extract<Type> = Type extends EnumType<infer Enum> ? Enum : never;
+import { directoryIsEmpty } from "./src/utils/directory_is_empty.ts";
 
 type ScaffoldActionOptions = Parameters<
   Parameters<typeof main["action"]>[0]
 >[0];
-const logLevelMap: Record<Extract<typeof LogLevelEnum>, LevelName> = {
-  debug: "DEBUG",
-  info: "INFO",
-  warn: "WARNING",
-  error: "ERROR",
-  fatal: "CRITICAL",
-  none: "NOTSET",
-};
 
 const main = new Command()
   .name("scaffold")
@@ -50,25 +32,21 @@ const main = new Command()
   .description(
     `🏗️ Scaffold a new project from any GitHub, GitLab or BitBucket git repository.`,
   )
-  .type("logLevel", LogLevelEnum)
   .option(
     "--cache-dir [cacheDir:string]",
     "Set a custom cache directory.",
   )
+  .option(
+    "--cache-only [cacheOnly:string]",
+    "Only use the cache (no network requests).",
+  )
   .option("--no-cache", "Disable the cache.")
-  .option("--reset-cache", "Reset the cache.")
+  .option("--reset-cache", "Reset the cache before the download.")
   .option(
     "-d, --debug",
-    `Enable debug logging (shorthand for ${
-      colors.gray.italic("--log-level=debug")
-    }`,
+    `Enable debug logging.`,
   )
   .option("-f, --force", "Overwrite files even if they already exist.")
-  .option(
-    "-l, --log-level [level:logLevel]",
-    "Set the log level.",
-    { hidden: true },
-  )
   .option("-s, --silent", "Disable all logging.")
   .option(
     "--no-template",
@@ -114,9 +92,21 @@ const alias = new Command()
   .arguments("<alias:string> <repo:string>")
   .description(
     "Create an alias for a template repository",
-  ).action((_, alias, repo) => {
-    const log = createLogger({ name: "scaffold" });
-    log.info("Not yet implemented.", { alias, repo });
+  ).action(async (_, alias, repo) => {
+    const spinner = wait({text: `Creating alias: ${alias} for repo: ${repo}`});
+    const cache = new RepositoryCache({
+      log: createLogger({ name: "scaffold", levelName: "WARNING" }),
+    });
+
+    await cache.store.load();
+
+    if (cache.store.getAlias(alias)) {
+      spinner.fail(`Alias already exists.`);
+      Deno.exit(1);
+    }
+
+    await cache.store.setAlias(alias, repo).save();
+    spinner.succeed(`Alias created.`);
   });
 
 const upgrade = new UpgradeCommand({
@@ -142,19 +132,14 @@ async function mainAction(
   templateFolder: string,
   folder = "",
 ) {
-  const {
-    logLevel = "error",
-    debug = false,
-    silent = false,
-    force = false,
-  } = options;
+  // keep track of the exit code
+  let exit = 0;
+  const { debug = false, silent = false, force = false } = options;
   const levelName: LevelName = silent
     ? "CRITICAL"
     : debug
     ? "DEBUG"
-    : isString(logLevel)
-    ? logLevelMap[logLevel]
-    : "DEBUG";
+    : "WARNING";
   const log = createLogger({ name: "scaffold", levelName });
   const destination = path.resolve(folder);
   const spinner = wait({
@@ -166,25 +151,40 @@ async function mainAction(
     ? path.resolve(options.cacheDir)
     : undefined;
   const cache = new RepositoryCache({ directory: cacheDirectory, log });
-  let exit = 0;
   const temporary: string[] = [];
 
   try {
     if (shouldCache) {
-      log.info("Loading cache...", cache.directory());
+      log.info("Loading store and cache...", cache.getDownloadPath());
       await cache.load();
-      log.info("Cache successfully loaded");
+      log.info("Store and cache successfully loaded");
     }
 
     if (options.resetCache === true) {
-      await Deno.remove(cache.directory(), { recursive: true });
+      await cache.reset();
     }
 
     let source: string;
     let permissions: Partial<ScaffoldPermissions> = {};
     let key: string | undefined;
+    const alias = cache.store.getAlias(templateFolder);
 
-    if (["./", "../", "/"].some((p) => templateFolder.startsWith(p))) {
+    if (alias) {
+      templateFolder = alias;
+    }
+
+    if (options.cacheOnly === true) {
+      const recent = cache.store.getRecent(templateFolder);
+
+      if (!recent) {
+        throw new ScaffoldError(
+          `--cache-only was used but there is no recent cache entry for ${templateFolder}`,
+        );
+      }
+
+      key = recent;
+      source = cache.getDownloadPath(key);
+    } else if (["./", "../", "/"].some((p) => templateFolder.startsWith(p)) || path.isAbsolute(templateFolder)) {
       spinner.text("Loading local folder...");
       source = path.resolve(templateFolder);
 
@@ -195,12 +195,15 @@ async function mainAction(
       }
     } else {
       spinner.text("Loading repository...");
-      const result = await loadRepository(templateFolder, { log, cache });
+      const result = await loadRepository(templateFolder, { cache });
       source = result.directory;
       key = result.key;
 
       if (!shouldCache) {
         temporary.push(source);
+      } else {
+        // save this as the most recent cache entry
+        await cache.store.setRecent(templateFolder, key).save();
       }
 
       spinner.succeed(
@@ -231,6 +234,16 @@ async function mainAction(
       description: options.description,
     };
 
+    for (const [name, granted] of Object.entries(permissions)) {
+      if (granted.length === 0) {
+        continue;
+      }
+
+      log.info(
+        `${name} permissions automatically granted for "${granted.join(", ")}"`,
+      );
+    }
+
     const processor = await loadWorker({
       source,
       destination,
@@ -239,6 +252,7 @@ async function mainAction(
       variables,
       permissions,
     });
+    spinner.succeed('Scaffold fully loaded.');
 
     // check if this should be called.
     await processor.getVariables();
@@ -259,16 +273,23 @@ async function mainAction(
     } else if (isString(error)) {
       message = error;
     } else {
-      message = Deno.inspect(error, { colors: true });
+      message = Deno.inspect(error, { colors: isColorSupported() });
     }
 
-    log.warning("The full error stack", error);
+    log.info("The full error stack", error);
     spinner.fail(`Something went wrong: ${message}`);
     exit = 1;
   } finally {
+    let removed = false
     // Remove all directories that were created.
     for (const temp of temporary) {
+      removed = true;
+      log.debug('Removing temporary directory:', temp);
       await Deno.remove(temp, { recursive: true });
+    }
+
+    if (removed) {
+      log.debug('Successfully removed temporary directories.');
     }
 
     Deno.exit(exit);

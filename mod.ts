@@ -1,4 +1,7 @@
-export { glob, type GlobEntry, type GlobProps } from "./src/glob.ts";
+export {
+  loadRepository,
+  type LoadRepositoryOptions,
+} from "./src/load_repository.ts";
 export {
   defineTemplate,
   type TemplateProps,

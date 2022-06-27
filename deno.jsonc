@@ -8,13 +8,15 @@
     "lock": "deno run --allow-run=deno --allow-env=CI --allow-read scripts/cache.ts --reload",
     "run": "deno run --unstable -A ./scaffold.ts",
     "test:coverage": "deno test --coverage=coverage --unstable --allow-read --allow-write --allow-env --allow-run='deno'",
-    "test:snapshot": "deno test --unstable --allow-read --allow-write --allow-env --allow-run='deno' -- -u",
-    "test:watch": "deno test --unstable --allow-read --allow-write --allow-env --allow-run='deno' --watch",
+    "test:snapshot": "deno task test:integration -- -u",
+    "test:watch": "deno task test --watch",
+    "test:integration": "INTEGRATION=1 deno task test",
     "test": "deno test --unstable --allow-read --allow-write --allow-env --allow-run='deno'",
     "typecheck": "deno --unstable check ./scaffold.ts ./mod.ts"
   },
   "compilerOptions": {
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true
   },
   "lint": {
     "files": {

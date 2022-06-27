@@ -1,47 +1,55 @@
 import { Cache, EmptyCache } from "./cache.ts";
 import { ensureDir, ensureFile, move } from "./deps/fs.ts";
 import { path } from "./deps/path.ts";
-import {
-  copy,
-  type Logger,
-  readerFromStreamReader,
-  readLines,
-  Untar,
-} from "./deps/std.ts";
+import { copy, readerFromStreamReader, readLines, Untar } from "./deps/std.ts";
 import type { LiteralUnion } from "./deps/types.ts";
 import { LoadRepositoryError } from "./errors.ts";
-import { createLogger } from "./logger.ts";
 import { GitRepository, parseGitUrl } from "./parse.ts";
-import { uint8ArrayToString } from "./utils.ts";
 import { matchOne } from "./utils/match.ts";
 
-/**
- * This is the default logger which only logs critical errors.
- */
-const defaultLogger = createLogger({ name: "scaffold", levelName: "CRITICAL" });
-
 export interface LoadRepositoryOptions {
-  /** Provide a custom logger. This is the same logger that is used by the CLI.
-   */
-  log?: Logger;
-
   /**
    * A cache object which provides access to the directory.
    */
   cache?: Cache;
 }
 
+export interface HashedGitRepository extends GitRepository {
+  /**
+   * The commit hash that this repository used.
+   */
+  hash: string;
+}
+
+interface LoadRepositoryReturn {
+  /**
+   * The absolute path to the repository in the cache folder.
+   */
+  directory: string;
+
+  /**
+   * The key used to identify the repository in the cache.
+   */
+  key: string;
+
+  /**
+   * The parsed repository with the latest commit hash.
+   */
+  repo: HashedGitRepository;
+
+  /**
+   * When `true` this is the first time this specific hash was downloaded.
+   */
+  isNew: boolean;
+}
+
 /**
  * Throws an error if the url can't be parsed.
- *
- * TODO(ifiokjr): add caching support
- * TODO(ifiokjr): add logging via deno std logging library
  */
 export async function loadRepository(
   source: string,
   options: LoadRepositoryOptions = {},
-) {
-  const log = options.log ?? defaultLogger;
+): Promise<LoadRepositoryReturn> {
   // first: parse the provided source to get the full url
   const repo = parseGitUrl(source);
   const cache = options.cache ?? new EmptyCache();
@@ -51,73 +59,61 @@ export async function loadRepository(
   }
 
   const hash = await getHash(repo);
-  log.info("hash retrieved", hash);
 
   if (!hash) {
-    log.warning("No hash found!");
-    // TODO(ifiokjr): `did you mean to use...`
     throw new LoadRepositoryError(
       `the requested reference ${repo.ref} does not exist on the requested repository: ${repo.url}`,
     );
   }
 
   const key = cache.getKey(hash, repo);
-  const hasCache = cache.has(key);
-  const destination = cache.directory(key);
-
-  log.debug("all the details", { key, hasCache, destination, repo });
+  const hasCache = cache.hasKey(key);
+  const destination = cache.getDownloadPath(key);
+  let isNew = false;
 
   if (!hasCache) {
-    log.info("download the directory to the temporary cache");
+    isNew = true;
 
     if (repo.mode === "tar") {
-      await getTar({ destination, hash, log, repo });
+      await getTar({ destination, hash, repo });
     } else {
-      await gitClone({ destination, hash, log, repo });
+      await gitClone({ destination, hash, repo });
     }
   }
 
-  return { directory: destination, key, repo };
+  return { directory: destination, key, repo: { ...repo, hash }, isNew };
 }
 
 interface GetTarProps {
   destination: string;
   repo: GitRepository;
   hash: string;
-  log: Logger;
 }
 
 async function gitClone(props: GetTarProps) {
-  const { repo, destination, log, hash } = props;
+  const { repo, destination, hash } = props;
   let tmp = destination;
 
   if (repo.subdirectory) {
-    log.info("creating temporary directory", { tmp });
     tmp = await Deno.makeTempDir();
   }
 
-  log.debug("cloning repository", repo);
-  const cloneOutput = await Deno.run({
+  await Deno.run({
     cmd: ["git", "clone", repo.ssh, tmp],
     cwd: tmp,
     stdout: "piped",
   }).output();
 
-  log.debug("successfully cloned", uint8ArrayToString(cloneOutput));
-
-  const checkoutOutput = await Deno.run({
+  await Deno.run({
     cmd: ["git", "checkout", hash],
     cwd: tmp,
     stdout: "piped",
   }).output();
-  log.debug(`checkout branch ${hash}`, uint8ArrayToString(checkoutOutput));
 
-  log.debug("removing the .git directory", cloneOutput);
   await Deno.remove(path.join(tmp, ".git"), { recursive: true });
 
   if (repo.subdirectory) {
     const source = path.join(tmp, repo.subdirectory);
-    log.info("moving subdirectory to destination", { source, destination });
     await move(source, destination, { overwrite: true });
 
     if (tmp !== destination) {
@@ -127,7 +123,7 @@ async function gitClone(props: GetTarProps) {
 }
 
 async function getTar(props: GetTarProps): Promise<void> {
-  const { destination, repo, hash, log } = props;
+  const { destination, repo, hash } = props;
   const url = repo.site === "gitlab"
     ? `${repo.url}/repository/archive.tar.gz?ref=${hash}`
     : repo.site === "bitbucket"
@@ -135,9 +131,7 @@ async function getTar(props: GetTarProps): Promise<void> {
     : `${repo.url}/archive/${hash}.tar.gz`;
 
   const subdirectory = `${repo.name}-${hash}${repo.subdirectory ?? ""}`;
-  log.info("the subdirectory within the tar", { subdirectory });
 
-  log.info("fetching the compressed tar", { url });
   const response = await fetch(url);
   const decompressedStream = response.body?.pipeThrough(
     new DecompressionStream("gzip"),
@@ -151,12 +145,9 @@ async function getTar(props: GetTarProps): Promise<void> {
   const tarballEntries = new Untar(readerFromStreamReader(streamReader));
 
   for await (const entry of tarballEntries) {
-    log.debug("processing the tarball entry", entry);
     const relative = path.relative(subdirectory, entry.fileName);
-    log.debug("relative path:", { relative });
 
     if (relative.startsWith("..")) {
-      log.debug("ignoring entry outside of subdirectory");
       continue;
     }
 
@@ -170,19 +161,19 @@ async function getTar(props: GetTarProps): Promise<void> {
       continue;
     }
 
-    log.debug("ensure that path exists", { absolutePath });
     await ensureFile(absolutePath);
     const file = await Deno.open(absolutePath, { write: true });
-    log.debug("copying from", entry.fileName, "to", absolutePath);
     await copy(entry, file);
   }
 
   streamReader.releaseLock();
-
-  log.info("successfully downloaded and extracted the tarball", url);
 }
 
 async function getHash(repo: GitRepository): Promise<string | undefined> {
+  // shortened hashes that match are added here. If there is more than one
+  // shortened match then this is an ambiguous reference. Throw an error.
+  const shortened: string[] = [];
+
   for await (const reference of getGitReferences(repo)) {
     if (
       (repo.ref === "HEAD" && reference.type === "HEAD") ||
@@ -191,6 +182,28 @@ async function getHash(repo: GitRepository): Promise<string | undefined> {
     ) {
       return reference.hash;
     }
+
+    if (
+      reference.type !== "HEAD" &&
+      reference.hash.length > 4 &&
+      reference.hash.startsWith(repo.ref)
+    ) {
+      shortened.push(reference.hash);
+
+      if (shortened.length > 1) {
+        throw new LoadRepositoryError(
+          `An ambiguous reference was provided: ${repo.ref}, which which matches multiple commits: ${
+            shortened.join(", ")
+          }`,
+        );
+      }
+    }
+  }
+
+  const hash = shortened[0];
+
+  if (hash) {
+    return hash;
   }
 }
 
@@ -247,6 +260,7 @@ export async function* getGitReferences(
 
       if (ref === "HEAD") {
         yield { type: "HEAD", hash };
+        continue;
       }
 
       const match = matchOne<"type" | "name">(ref, GITHUB_REFS_REGEX);
