@@ -2,7 +2,7 @@ import { ensureDir } from "../src/deps/fs.ts";
 import { path } from "../src/deps/path.ts";
 import { writeJson } from "../src/utils.ts";
 import { assertEquals, assertStringIncludes } from "./deps.ts";
-import { runWithStdin, snapshot, snapshotDirectory } from "./helpers.ts";
+import { runWithStdin, snapshotDirectory } from "./helpers.ts";
 
 const cwd = new URL("../", import.meta.url).pathname;
 const template = { deno: "ifiokjr/templates/deno#9fdf5e0" };

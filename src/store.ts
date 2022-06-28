@@ -1,5 +1,4 @@
 import { ensureFile } from "./deps/fs.ts";
-import { ScaffoldError } from "./errors.ts";
 import { readJson, writeJson } from "./utils.ts";
 
 /**
