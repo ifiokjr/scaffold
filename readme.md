@@ -2,21 +2,41 @@
 
 <br />
 
-> scaffold project templates with deno
+> scaffold your next project with style and 💗
+
+<br />
 
 ![Scaffold Cli Output!](./assets/example.svg "Scaffold Cli Output")
 
+<br />
+
+<a href="https://github.com/ifiokjr/scaffold/actions?query=workflow:ci">
+  <img src="https://github.com/ifiokjr/scaffold/workflows/ci/badge.svg?branch=main" alt="Continuous integration badge for github actions" title="CI Badge" />
+</a>
+
+<br />
+
 ## Why?
+
+<br />
 
 Ideas come to us all the time. Often it's the small ideas that lead to impactful projects, but sadly it's the small ideas that are dismissed too early. One of the greatest tools in a developers arsenal can hold is the ability to quickly test an idea, iterate on the concept, and ship it to the world. `scaffold` is designed to make you more effective at testing your small ideas. Start your next project using any public repository and quickly test your initial hypothesis in a short amount of time.
 
+<br />
+
 ## Advantages
+
+<br />
 
 Scaffold is fast, lightweight and allows for full customization of the bootstrapped project via the `scaffold.config.ts`. Add this configuration file to the root of the project to prompt users for information about the project, e.g. do they prefer javascript or typescript, do they want to use a different build tool, etc. Their responses are stored and can be used to customise the project. Answers are also provided as template variables to the files in the project using the [`eta`](https://github.com/eta-dev/eta) template engine.
 
 Another key advantage of `scaffold` as a project bootstrapping tool for your next project, is that it takes advantage of the `deno` worker runtime sandbox. This means that every remote template you install, needs to request express permissions the first time it's run. Once the permissions are granted then it should be able to run in the future without issues. This is a great feature of deno and part of the reason why `scaffold` was created.
 
+<br />
+
 ## Installation
+
+<br />
 
 You should have `deno` installed on your system. Follow the instructions outlined [here](https://deno.land/x/install/).
 
@@ -43,6 +63,8 @@ If you prefer to avoid the installation step then you can directly run the comma
 ```bash
 deno run --unstable -A https://deno.land/x/scaffold/scaffold.ts <repository> <projectName>
 ```
+
+<br />
 
 ## Usage
 
@@ -106,7 +128,11 @@ Examples:
 
 The first time a repo is scaffolded, it will be cloned to the cache directory.
 
+<br />
+
 ## Templates
+
+<br />
 
 `eta` is the template engine used in `scaffold`. Any file that is ends with the `.template` extension will be processed by `eta`.
 
@@ -116,11 +142,19 @@ File names can use an alternate platform independent syntax. For example, `[[it.
 
 `eta` has a whole host of features which you can learn about [here](https://eta.js.org/docs/syntax#syntax-overview).
 
+<br />
+
 ## API
+
+<br />
 
 <!--TEMPLATE: a.b-->Coming soon!<!--/TEMPLATE: a.b-->
 
+<br />
+
 ## Gratitude
+
+<br />
 
 - This project was heavily influenced by [`degit`](https://github.com/Rich-Harris/degit) by **[@Rish-Harris](https://github.com/Rich-Harris)**.
 - Special thanks to [`deno`](https://github.com/denoland/deno) for creating an elegant runtime for TypeScript development. It's been a joy to use.

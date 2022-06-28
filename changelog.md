@@ -1,16 +1,36 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
 ### 💥 Breaking
 
 - `--cache` has been renamed to `--cache-dir` and can be used to set a custom cache directory.
+- Remove ~~`--log-level`~~ flag Use `--debug` instead to get debug logging.
 
 ### ✨ Features
 
 - `https://deno.land/x/scaffold/scaffold.ts` is now the entry point for installing the CLI. All documentation has been updated to reflect this.
 - Add new commands, `upgrade`, `help`, `completions` and `alias`.
--
+
+  Setting up an alias can be done in the following way:
+
+  ```bash
+  scaffold alias deno ifiokjr/templates/deno
+  ```
+
+  Now you can use the `deno` alias to scaffold a project.
+
+  ```bash
+  scaffold deno my-project
+  ```
+
+  You can now upgrade the scaffold command to the latest version. You will also be prompted to upgrade the scaffold if a new version is available.
+
+  ```bash
+  scaffold upgrade
+  ```
+
+- Add support for `--cache-only` which allows you to only use the cache and not download anything.
 
 ## 0.1.1 - [2022-06-24]
 
