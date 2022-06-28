@@ -1,7 +1,8 @@
 {
   "tasks": {
-    "check": "deno task fix && deno task lint && deno task test:integration && CI=true deno task lock && deno task run -h &> /dev/null",
+    "check": "deno task typecheck && deno task check:format && deno task lint && deno task test:integration && CI=true deno task lock && deno task run -h &> /dev/null",
     "fix": "dprint fmt",
+    "check:format": "dprint check",
     "install": "deno install --unstable -Af -n scaffold ./scaffold.ts",
     "lint": "deno lint",
     "lock:update": "deno run --allow-run=deno --allow-read scripts/cache.ts",

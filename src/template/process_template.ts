@@ -24,6 +24,7 @@ import { normalize } from "../utils.ts";
 import {
   AnyVariables,
   BaseTemplateProps,
+  BaseVariables,
   Callable,
   ScaffoldPermissions,
   TemplateProps,
@@ -42,7 +43,7 @@ export class ProcessTemplate {
   #base: BaseTemplateProps;
   #template?: TemplateProps;
   #templatePath?: string;
-  #variables?: AnyVariables;
+  #variables?: BaseVariables;
 
   get template() {
     assert(
@@ -53,7 +54,7 @@ export class ProcessTemplate {
     return this.#template;
   }
 
-  get variables(): AnyVariables {
+  get variables(): BaseVariables {
     return this.#variables ?? this.#base.initialVariables;
   }
 
@@ -95,11 +96,13 @@ export class ProcessTemplate {
       return;
     }
 
-    this.#variables = await extractCallable(getVariables, {
+    const variables = await extractCallable(getVariables, {
       ...this.#base,
       prompt,
       type: { Checkbox, Confirm, Input, List, Number, Secret, Select, Toggle },
     });
+
+    this.#variables = { ...this.#base.initialVariables, ...variables };
 
     return this.#variables;
   }

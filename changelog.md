@@ -1,6 +1,10 @@
 # Changelog
 
-## [Unreleased](https://github.com/ifiokjr/scaffold/compare/0.2.0...HEAD)
+## [Unreleased](https://github.com/ifiokjr/scaffold/compare/0.3.0...HEAD)
+
+## 0.3.0
+
+> [2022-06-28](https://github.com/ifiokjr/scaffold/compare/0.2.0...0.3.0)
 
 ### 💥 Breaking
 
