@@ -1,7 +1,7 @@
 import { ensureDir } from "../src/deps/fs.ts";
 import { path } from "../src/deps/path.ts";
 import { writeJson } from "../src/utils.ts";
-import { assertEquals, assertStringIncludes } from "./deps.ts";
+import { assertEquals, assertExists, assertStringIncludes } from "./deps.ts";
 import { runWithStdin, snapshotDirectory } from "./helpers.ts";
 
 const cwd = new URL("../", import.meta.url).pathname;
@@ -70,8 +70,13 @@ Deno.test({
     cwd: outputDirectory,
     dot: true,
     junk: true,
-    exclude: ["**/.git/", "!**/.git/COMMIT_EDITMSG", "!.git/HEAD"],
+    exclude: ["**/.git/"],
   });
+
+  const output = await Deno.readTextFile(
+    path.join(outputDirectory, ".git/HEAD"),
+  );
+  assertExists(output);
 
   // cleanup
   await Deno.remove(outputDirectory, { recursive: true });
@@ -122,7 +127,7 @@ Deno.test({
     cwd: outputDirectory,
     dot: true,
     junk: true,
-    exclude: ["**/.git/", "!**/.git/COMMIT_EDITMSG", "!.git/HEAD"],
+    exclude: ["**/.git/"],
   });
 
   // cleanup
