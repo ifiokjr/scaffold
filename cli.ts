@@ -19,6 +19,7 @@ import { ScaffoldPermissions } from "./src/template/define_template.ts";
 import { loadWorker } from "./src/template/load_worker.ts";
 import { readJson, wait, writeJson } from "./src/utils.ts";
 import { directoryIsEmpty } from "./src/utils/directory_is_empty.ts";
+import { getUserDetails } from "./src/utils/get_user_details.ts";
 import { isColorSupported } from "./src/utils/is_color_supported.ts";
 
 type ScaffoldActionOptions = Parameters<
@@ -51,14 +52,6 @@ const main = new Command()
   .option(
     "--no-template",
     `Disable loading the ${colors.gray.italic("scaffold.config.ts")} file.`,
-  )
-  .option(
-    "-n,--name [name:string]",
-    `Set the name to be used in the template`,
-  )
-  .option(
-    "--description [name:string]",
-    `Set the description to be used in the template`,
   )
   .option(
     "-y, --no-interactive",
@@ -256,8 +249,8 @@ async function mainAction(
 
     spinner.text("Preparing scaffold...");
     const variables = {
-      name: options.name ?? path.basename(folder),
-      description: options.description,
+      ...await getUserDetails(),
+      name: path.basename(folder),
     };
 
     for (const [name, granted] of Object.entries(permissions)) {

@@ -1,6 +1,18 @@
 # Changelog
 
+## [Unreleased](https://github.com/ifiokjr/scaffold/compare/0.2.0...HEAD)
+
+### 💥 Breaking
+
+- Remove `--name` and `--description` from options. `UserDetails` is a better API.
+
+### ✨ Features
+
+- Add `UserDetails` to the initial variables passed into the `scaffold.config.ts`. The new properties are `username`, `email`, `user` and `name`.
+
 ## 0.2.0
+
+> [2022-06-28](https://github.com/ifiokjr/scaffold/compare/0.1.1...0.2.0)
 
 ### 💥 Breaking
 
@@ -32,13 +44,17 @@
 
 - Add support for `--cache-only` which allows you to only use the cache and not download anything.
 
-## 0.1.1 - [2022-06-24]
+## 0.1.1
+
+> [2022-06-24](https://github.com/ifiokjr/scaffold/compare/0.1.0...0.1.1)
 
 ### 🔧 Fixes
 
 - Empty files were being copied over from remote repositories due to a bug in the `untar` logic. This is now fixed and tests have been added.
 
-## 0.1.0 - [2022-06-24]
+## 0.1.0
+
+> [2022-06-24](https://github.com/ifiokjr/scaffold/compare/a315dd0...0.1.0)
 
 Initial release of the `scaffold` project. The project is currently passing tests on macos and linux only.
 

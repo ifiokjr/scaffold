@@ -6,13 +6,19 @@
 
 <br />
 
-![Scaffold Cli Output!](./assets/example.svg "Scaffold Cli Output")
+<p align="center">
+  <a href="#">
+    <img src="./assets/example.svg" alt="Scaffold Cli Output" title="Scaffold Cli Output" />
+  </a>
+</p>
 
 <br />
 
-<a href="https://github.com/ifiokjr/scaffold/actions?query=workflow:ci">
-  <img src="https://github.com/ifiokjr/scaffold/workflows/ci/badge.svg?branch=main" alt="Continuous integration badge for github actions" title="CI Badge" />
-</a>
+<p align="center">
+  <a href="https://github.com/ifiokjr/scaffold/actions?query=workflow:ci">
+    <img src="https://github.com/ifiokjr/scaffold/workflows/ci/badge.svg?branch=main" alt="Continuous integration badge for github actions" title="CI Badge" />
+  </a>
+</p>
 
 <br />
 

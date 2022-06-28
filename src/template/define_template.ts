@@ -10,6 +10,7 @@ import type {
   Toggle,
 } from "../deps/cli.ts";
 import { Match } from "../utils/create_matcher.ts";
+import { UserDetails } from "../utils/get_user_details.ts";
 import { ExportedConfig } from "./types.ts";
 
 export function defineTemplate(
@@ -19,11 +20,21 @@ export function defineTemplate(
 }
 
 type MaybePromise<Type> = Type | Promise<Awaited<Type>>;
-export type AnyVariables = Record<string, unknown>;
+
+export interface AnyVariables {
+  [key: string]: unknown;
+}
+
+export interface BaseVariables extends AnyVariables, UserDetails {
+  /**
+   * The basename of the project directory. This can be used as a default name.
+   */
+  name: string;
+}
 export type Callable<Type, Props = void> =
   | MaybePromise<Type>
   | ((props: Props) => MaybePromise<Type>);
-interface MatchProps<Variables extends AnyVariables = AnyVariables>
+interface MatchProps<Variables extends BaseVariables = BaseVariables>
   extends BaseTemplateProps {
   variables: Variables;
 }
@@ -61,7 +72,7 @@ export interface ScaffoldPermissions {
 }
 
 export interface TemplateProps<
-  Variables extends AnyVariables = AnyVariables,
+  Variables extends BaseVariables = BaseVariables,
 > {
   /**
    * Use the prompt to ask the user for input to determine the variables.
@@ -82,7 +93,7 @@ export interface TemplateProps<
    * ```
    */
   getVariables?: Callable<
-    Record<string, unknown>,
+    AnyVariables,
     BaseTemplateProps & PromptProps
   >;
 
@@ -157,7 +168,7 @@ export interface BaseTemplateProps {
   /**
    * All the cli arguments that were passed when created via the cli.
    */
-  initialVariables: Record<string, unknown>;
+  initialVariables: BaseVariables;
 
   /**
    * The current permissions of the worker.

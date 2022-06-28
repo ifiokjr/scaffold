@@ -1,5 +1,8 @@
 import { Remote, wrap } from "../deps/comlink.ts";
-import { ScaffoldPermissions } from "../template/define_template.ts";
+import {
+  BaseVariables,
+  ScaffoldPermissions,
+} from "../template/define_template.ts";
 import { ProcessTemplate } from "../template/process_template.ts";
 
 interface LoadWorkerProps {
@@ -7,7 +10,7 @@ interface LoadWorkerProps {
   source: string;
   destination: string;
   permissions?: Partial<ScaffoldPermissions>;
-  variables: Record<string, unknown>;
+  variables: BaseVariables;
   interactive: boolean;
 }
 
