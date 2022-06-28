@@ -57,8 +57,8 @@ export interface LoadConfigOptions {
    * The following will search for the files from the provided current working
    * directory.
    *
-   * - `scaffold.template.js`
-   * - `scaffold.template.ts`
+   * - `scaffold.config.js`
+   * - `scaffold.config.ts`
    *
    * ```
    * await loadEsmConfig({name: 'monots'});
